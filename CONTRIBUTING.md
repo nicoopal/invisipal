@@ -44,6 +44,8 @@ powershell -ExecutionPolicy Bypass -File scripts\build.ps1
 
 The result is written to `dist/`: `Invisipal-Setup.exe` (needs [Inno Setup 6](https://jrsoftware.org/isinfo.php), skipped with a warning otherwise; `installer/invisipal.iss`), `Invisipal-portable.exe` and `invisipal-cards.skill`. Releases are built by `.github/workflows/release.yml` when a `v*` tag is pushed.
 
+The Microsoft Store package is built with `scripts/build-msix.ps1` (needs the Windows SDK and a prior `build.ps1`); its identity lives in `installer/msix/store-identity.json`. The `MSIX` workflow builds it, installs it with a throwaway test certificate, launches it and runs the Windows App Certification Kit. Store listing texts are in `docs/store-listing.md`; screenshots in `docs/store/`.
+
 ## Code layout
 
 | Path | Responsibility |
