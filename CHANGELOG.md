@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `invisipal-cards` Claude skill (`skills/invisipal-cards/`): interviews the user, turns any text into an Invisipal guide (cue cards, teleprompter script, hybrid or checklist), checks it with a bundled validator that mirrors the app's card splitting, and saves it to the guides folder. Released as `invisipal-cards.skill`.
+
 ### Changed
 
 - Settings and guides now live in `Documents\Invisipal` (OneDrive-redirected Documents supported), seeded with the example guides on first run; an older `config.json` next to the app is copied over. An empty `portable` file next to the app keeps data next to the app instead.

@@ -79,6 +79,17 @@ Atajos para crear guías: copiar un texto y apretar `Ctrl+V` en Invisipal lo con
 
 Todo (editor, biblioteca, ayuda) ocurre dentro de la misma ventana protegida a propósito: los popups o menús serían ventanas aparte, y esas sí se capturarían.
 
+## Skill para Claude: de cualquier texto a tarjetas
+
+El repo incluye un [skill para Claude](skills/invisipal-cards/SKILL.md) que arma las guías por vos. Se le pega un texto (notas desordenadas, un discurso, un mail, un documento) o se describe la reunión. Claude hace unas pocas preguntas (tipo de reunión; formato: tarjetas-recordatorio, guion de teleprompter, híbrido o checklist; idioma; largo), escribe la guía en el formato exacto que entiende Invisipal, la verifica con un script incluido y la guarda en `Documentos\Invisipal\guides\` o la deja lista para copiar y pegar con `Ctrl+V` en Invisipal.
+
+Instalación:
+
+- **Claude.ai o Claude escritorio**: bajar `invisipal-cards.skill` del [último release](https://github.com/nicoopal/invisipal/releases/latest) e ir a *Configuración → Capacidades → Skills → Subir skill*.
+- **Claude Code**: copiar la carpeta `skills\invisipal-cards` a `%USERPROFILE%\.claude\skills\`.
+
+Ejemplo de uso: *"armame las tarjetas de Invisipal para la call de mañana con estas notas: …"*.
+
 ## Dónde se guardan los datos
 
 Todo se guarda en **`Documentos\Invisipal`**: `config.json` (posición, tamaño, letra, opacidad, atajos) y la carpeta `guides\` con una guía por reunión. La carpeta se crea sola la primera vez, con las guías de ejemplo. Si Documentos está en OneDrive, las guías quedan sincronizadas. Actualizar o reinstalar Invisipal no toca esa carpeta. Para el modo portable (todo junto a la app, por ejemplo en un pendrive), crear un archivo vacío llamado `portable` junto a `invisipal.pyw` o `Invisipal.exe`. `--data-dir` permite usar cualquier otra carpeta. La configuración completa está documentada en el [README en inglés](README.md#configuration).

@@ -22,8 +22,12 @@ jobs:
       - name: Build
         shell: powershell
         run: ./scripts/build.ps1
+      - name: Package Claude skill
+        run: python -c "import shutil; shutil.rmtree('skills/invisipal-cards/scripts/__pycache__', ignore_errors=True); shutil.make_archive('dist/invisipal-cards', 'zip', 'skills', 'invisipal-cards'); shutil.move('dist/invisipal-cards.zip', 'dist/invisipal-cards.skill')"
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/Invisipal-*-win64.zip
+          files: |
+            dist/Invisipal-*-win64.zip
+            dist/invisipal-cards.skill
           generate_release_notes: true

@@ -51,6 +51,7 @@ The result is written to `dist/`. Releases are built by `.github/workflows/relea
 | `invisipal.pyw` | Double-click launcher (no console window) |
 | `invisipal/__main__.py` | CLI flags, data folder resolution, single-instance check, app start |
 | `invisipal/app.py` | The Tk window: header, reader / editor / library / help views, local keys, timer, watchdog, auto-reload |
+| `skills/invisipal-cards/` | Claude skill that writes guides; `scripts/check_guide.py` must split cards exactly like `cards.py` (enforced by `tests/test_skill_checker.py`) |
 | `invisipal/paths.py` | Data folder: `Documents\Invisipal` by default, `portable` marker, first-run seeding |
 | `invisipal/win32.py` | All `ctypes` Win32 calls: display affinity, extended styles, single-instance event, AltGr probe, DPI |
 | `invisipal/hotkeys.py` | Hotkey parsing, AltGr conflict resolution, the `RegisterHotKey` message-loop thread |

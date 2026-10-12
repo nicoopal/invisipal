@@ -40,6 +40,7 @@ Pure Python standard library (tkinter + ctypes). No dependencies, no installer, 
 - **Everything happens inside the one protected window**: reader, editor, guide library and help. There are no popups, menus or dialogs, because those would be separate windows that *can* be captured.
 - **Plain-text guides**: `.md` / `.txt` files in a folder. Edit them in VS Code or Notepad and Invisipal reloads them automatically.
 - **Paste and go**: press `Ctrl+V` and the clipboard becomes a new guide.
+- **Claude skill included**: Claude turns any text into a ready-to-use guide (see [Claude skill](#claude-skill-turn-any-text-into-cards)).
 - **Small Markdown subset** (headings, lists, checklists, quotes, code, bold, italic, `==highlight==`, strikethrough).
 - **Meeting timer**, remembered position per guide, remembered window position and size.
 - **Honest status badge**: `● private` when the window is hidden from capture, `● VISIBLE` when it is not.
@@ -151,6 +152,27 @@ A complete example lives in [`guides/demo-meeting.md`](guides/demo-meeting.md) (
 - **Library** (`L` or the `☰` button): lists the guides with their card counts. Click one to open it, `+ New` to create one, `Paste as new` to import the clipboard. Rename or delete guides in the folder itself (`Open folder`, which opens Windows Explorer; remember that Explorer is *not* hidden from capture).
 - **Built-in editor** (`E` or the `✎` button): `Ctrl+S` saves, `Esc` cancels (press it twice to discard unsaved changes), `Ctrl+Enter` inserts a `---` card break. `Replace with clipboard` swaps the whole text and can be undone with `Ctrl+Z`.
 - **Any external editor**: guides are checked once a second and reloaded when the file changes (`"auto_reload"`), so you can keep a guide open in VS Code and see edits live. The reload is skipped while Invisipal's own editor is open.
+
+## Claude skill: turn any text into cards
+
+The repo ships a [Claude skill](skills/invisipal-cards/SKILL.md) that writes Invisipal guides for you. Paste messy notes, a speech, an email thread or a doc, or just describe the meeting, and Claude:
+
+1. **Asks a few quick questions**: what the meeting is, which format you want (quick *cue cards*, a full *teleprompter* script, a *hybrid* with a scripted opening and close, or a *checklist* of facts), the language and the length.
+2. **Writes the guide** in the exact Markdown subset Invisipal renders, one idea per card, a `##` heading on every card (so the "next:" preview is useful), your numbers and names kept verbatim, and backup cards (objections, tough questions, key numbers) at the end.
+3. **Checks it** with a bundled script that splits the file exactly like the app and flags anything Invisipal can't render (tables, links, emoji, HTML) or cards too dense to read at a glance.
+4. **Saves it** to `Documents\Invisipal\guides\` when it has file access, or gives it to you to copy. Then press `Ctrl+V` in Invisipal to turn the clipboard into a new guide.
+
+In a test against the same requests without the skill (a Spanish sales call from messy notes, a teleprompter script for a video, a vague "help me prep my promotion 1:1"), guides written with the skill passed 100% of the format and content checks, against 77% without it. Without the skill, Claude didn't use `---` separators and in one case rewrote the figures.
+
+**Install**
+
+- **Claude.ai / Claude desktop**: download `invisipal-cards.skill` from the [latest release](https://github.com/nicoopal/invisipal/releases/latest), then go to *Settings → Capabilities → Skills → Upload skill*.
+- **Claude Code**: copy the folder to your personal skills.
+  ```powershell
+  Copy-Item -Recurse skills\invisipal-cards "$env:USERPROFILE\.claude\skills\"
+  ```
+
+Then just ask, for example: *"Turn these notes into Invisipal cards for my call with Acme tomorrow"* or *"armame las tarjetas para la reunión del lunes"*.
 
 ## Keyboard shortcuts
 
