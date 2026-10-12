@@ -65,7 +65,9 @@ Pure Python standard library (tkinter + ctypes). No dependencies, no installer, 
 
 Both keep your settings and guides in `Documents\Invisipal`, so upgrading or uninstalling never touches them. All files are also on the [Releases page](https://github.com/nicoopal/invisipal/releases).
 
-> **"Windows protected your PC"?** The executables aren't code-signed yet, so SmartScreen may warn about an unrecognized app. Click **More info → Run anyway**. You can also check the source and build it yourself (below).
+> **"Windows protected your PC"?** The executables aren't code-signed yet, so SmartScreen may warn about an unrecognized app. Click **More info → Run anyway**.
+>
+> **"An Application Control policy has blocked this file" (code 4551)?** That's **Smart App Control** (Windows 11), which blocks every unsigned app it doesn't recognize, with no "run anyway" option. Until the releases are code-signed, run Invisipal [from source](#option-b-run-from-source) instead: Python itself is signed, so Smart App Control lets it run. See the [FAQ](docs/faq.md#windows-blocks-invisipalexe-an-application-control-policy-has-blocked-this-file) for details.
 
 ### Option B: run from source
 

@@ -89,6 +89,20 @@ No. Invisipal depends on Windows-only APIs (`SetWindowDisplayAffinity`, `Registe
 - If nothing appears, it may already be running: Invisipal allows only one instance, and a second launch just asks the first to show itself. Quit the first one from Task Manager if it is stuck.
 - The `.exe` downloaded from the internet may trigger Windows SmartScreen or antivirus warnings because it is a freshly built, unsigned program. You can inspect and run the source with Python instead.
 
+## Windows blocks Invisipal.exe: "An Application Control policy has blocked this file"
+
+The full message is usually *"CreateProcess failed; code 4551. An Application Control policy has blocked this file."* It comes from **Smart App Control**, a Windows 11 feature that only lets apps run if Microsoft knows them or they carry a valid digital signature. Invisipal's releases are not code-signed yet, so it blocks them, and unlike SmartScreen there is no "Run anyway" button.
+
+To check whether it's on: *Windows Security → App & browser control → Smart App Control*.
+
+What you can do:
+
+1. **Run from source (recommended).** Install Python 3.10+ from python.org, download or clone the repository, and double-click `invisipal.pyw`. Python is signed, so Smart App Control allows it, and the app is identical. For a Start menu entry, create a shortcut to `pythonw.exe` with the full path of `invisipal.pyw` as its argument, and pick `invisipal\assets\invisipal.ico` as its icon.
+2. **Wait for a signed release.** Code signing is on the roadmap; signed builds pass Smart App Control.
+3. **Turn Smart App Control off.** Not recommended just for this: it lowers your protection, and on many Windows versions it cannot be turned back on without resetting Windows.
+
+If you installed with `Invisipal-Setup.exe`, uninstall it from *Settings → Apps* first.
+
 ## Does it send any data anywhere?
 
 No. It has no network code, no telemetry and no dependencies. It reads and writes only `config.json` and your guides folder.

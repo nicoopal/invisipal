@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Smart App Control (Windows 11) blocks the unsigned executables with "An Application Control policy has blocked this file" (code 4551). Documented the cause and the workarounds in the README and FAQ.
+
 ## [1.1.0] - 2026-10-12
 
 ### Added (window)

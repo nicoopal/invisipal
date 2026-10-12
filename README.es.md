@@ -17,6 +17,8 @@ Solo usa la biblioteca estándar de Python (tkinter + ctypes): cero dependencias
 
   Si aparece "Windows protegió su PC" (los ejecutables todavía no están firmados): **Más información → Ejecutar de todas formas**.
 
+  Si aparece **"An Application Control policy has blocked this file" (código 4551)**, es **Smart App Control** de Windows 11, que bloquea toda app sin firma digital y no tiene botón para ejecutarla igual. Mientras los ejecutables no estén firmados, usar la versión con Python (`invisipal.pyw`): Python está firmado y la app es idéntica. Detalles en el [FAQ](docs/faq.md#windows-blocks-invisipalexe-an-application-control-policy-has-blocked-this-file).
+
 ## Cómo ejecutarlo
 
 ```powershell
