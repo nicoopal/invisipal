@@ -73,10 +73,14 @@ def test_positions_with_wrong_type_is_reset(tmp_path):
         ("font_size", "30", 30),
         ("font_size", "big", 20),
         ("font_size", None, 20),
-        ("opacity", 0.0, 0.15),
-        ("opacity", 7, 1.0),
-        ("opacity", 0.5, 0.5),
-        ("opacity", "x", 0.85),
+        ("background_opacity", -1, 0.0),
+        ("background_opacity", 7, 1.0),
+        ("background_opacity", 0.5, 0.5),
+        ("background_opacity", "x", 0.8),
+        ("text_opacity", 0.0, 0.2),
+        ("text_opacity", 0.6, 0.6),
+        ("index_font_size", 2, 7),
+        ("index_width", 5, 60),
         ("width", 10, 280),
         ("width", 99999, 10000),
         ("height", 10, 160),
@@ -95,7 +99,17 @@ def test_numeric_types_follow_defaults(tmp_path):
     cfg = Config(write_cfg(tmp_path, {"font_size": 22.9, "width": 640.0})).load()
     assert isinstance(cfg["font_size"], int)
     assert isinstance(cfg["width"], int)
-    assert isinstance(cfg["opacity"], float)
+    assert isinstance(cfg["background_opacity"], float)
+
+
+def test_migrates_old_opacity_settings(tmp_path):
+    old = {"opacity": 0.6, "hotkeys": {"opacity_up": "Ctrl+Alt+F1", "opacity_down": "Ctrl+Alt+F2"}}
+    cfg = Config(write_cfg(tmp_path, old)).load()
+    assert cfg["background_opacity"] == pytest.approx(0.6)
+    assert "opacity" not in cfg.data
+    assert cfg["hotkeys"]["background_more"] == "Ctrl+Alt+F1"
+    assert cfg["hotkeys"]["background_less"] == "Ctrl+Alt+F2"
+    assert "opacity_up" not in cfg["hotkeys"]
 
 
 @pytest.mark.parametrize("mode", ["auto", "separator", "heading", "paragraph", "none"])

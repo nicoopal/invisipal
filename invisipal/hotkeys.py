@@ -38,7 +38,7 @@ NAMED_KEYS.update({f"f{n}": 0x6F + n for n in range(1, 25)})
 NAMED_KEYS.update({f"num{n}": 0x60 + n for n in range(10)})
 
 # Actions where holding the key down should keep repeating.
-REPEATABLE = {"font_up", "font_down", "opacity_up", "opacity_down"}
+REPEATABLE = {"font_up", "font_down", "background_more", "background_less", "text_more", "text_less"}
 
 
 class HotkeyError(ValueError):

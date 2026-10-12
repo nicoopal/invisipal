@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (window)
+
+- Separate **background** and **text** opacity: the window is now two capture-excluded layers (a translucent backdrop plus a color-keyed text layer). Inline sliders (`◐` / `A`), hotkeys (`Ctrl+Alt+PageUp/PageDown`, `Ctrl+Alt+Shift+Right/Left`) and `Alt`/`Alt+Shift` + wheel. The old `opacity` setting and `opacity_up/down` hotkeys are migrated.
+- **Card index** sidebar: click to jump, drag to resize, `Ctrl` + wheel for its text size, hide with `◧`, `I` or `Ctrl+Alt+I`.
+- **Snap positions**: `Ctrl+Alt+Shift+Home/PageUp/End/PageDown` for the four corners and `Ctrl+Alt+Shift+Up/Down` for top/bottom center, inside the monitor's work area.
+- Drag the see-through background to move the window.
+
 ### Added
 
 - `invisipal-cards` Claude skill (`skills/invisipal-cards/`): interviews the user, turns any text into an Invisipal guide (cue cards, teleprompter script, hybrid or checklist), checks it with a bundled validator that mirrors the app's card splitting, and saves it to the guides folder. Released as `invisipal-cards.skill`.

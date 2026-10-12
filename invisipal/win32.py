@@ -56,6 +56,9 @@ APP_MUTEX_NAME = "Invisipal.AppMutex"
 _app_mutex = None
 
 MONITOR_DEFAULTTONULL = 0
+MONITOR_DEFAULTTONEAREST = 2
+GWLP_HWNDPARENT = -8
+GW_OWNER = 4
 
 VK_SHIFT = 0x10
 VK_CONTROL = 0x11
@@ -104,6 +107,12 @@ if IS_WINDOWS:
     user32.MsgWaitForMultipleObjects.restype = wintypes.DWORD
     user32.MonitorFromRect.argtypes = [ctypes.POINTER(wintypes.RECT), wintypes.DWORD]
     user32.MonitorFromRect.restype = wintypes.HMONITOR
+    user32.MonitorFromWindow.argtypes = [wintypes.HWND, wintypes.DWORD]
+    user32.MonitorFromWindow.restype = wintypes.HMONITOR
+    user32.GetMonitorInfoW.argtypes = [wintypes.HMONITOR, ctypes.c_void_p]
+    user32.GetMonitorInfoW.restype = wintypes.BOOL
+    user32.GetWindow.argtypes = [wintypes.HWND, wintypes.UINT]
+    user32.GetWindow.restype = wintypes.HWND
     user32.GetKeyboardLayout.argtypes = [wintypes.DWORD]
     user32.GetKeyboardLayout.restype = wintypes.HKL
     user32.MapVirtualKeyExW.argtypes = [wintypes.UINT, wintypes.UINT, wintypes.HKL]
@@ -258,6 +267,29 @@ def window_rect(hwnd: int) -> tuple[int, int, int, int]:
     rect = wintypes.RECT()
     user32.GetWindowRect(hwnd, ctypes.byref(rect))
     return rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top
+
+
+def work_area(hwnd: int) -> tuple[int, int, int, int]:
+    """(left, top, right, bottom) of the monitor holding ``hwnd``, minus the taskbar."""
+    class MONITORINFO(ctypes.Structure):
+        _fields_ = [("cbSize", wintypes.DWORD), ("rcMonitor", wintypes.RECT),
+                    ("rcWork", wintypes.RECT), ("dwFlags", wintypes.DWORD)]
+
+    info = MONITORINFO(cbSize=ctypes.sizeof(MONITORINFO))
+    monitor = user32.MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST)
+    if not monitor or not user32.GetMonitorInfoW(monitor, ctypes.byref(info)):
+        return 0, 0, user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+    r = info.rcWork
+    return r.left, r.top, r.right, r.bottom
+
+
+def set_owner(hwnd: int, owner: int) -> None:
+    """Make ``hwnd`` an owned window of ``owner``; Windows keeps it above its owner."""
+    _set_long(hwnd, GWLP_HWNDPARENT, owner or 0)
+
+
+def get_owner(hwnd: int) -> int:
+    return user32.GetWindow(hwnd, GW_OWNER) or 0
 
 
 def foreground_window() -> int:

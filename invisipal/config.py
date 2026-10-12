@@ -14,7 +14,9 @@ DEFAULTS: dict[str, Any] = {
     "y": None,
     "width": 620,
     "height": 440,
-    "opacity": 0.85,
+    "background_opacity": 0.8,
+    "text_opacity": 1.0,
+    "snap_margin": 16,
     "always_on_top": True,
     "show_in_taskbar": False,
     "capture_protection": True,
@@ -23,6 +25,10 @@ DEFAULTS: dict[str, Any] = {
     "mono_family": "Cascadia Mono",
     "font_size": 20,
     "line_spacing": 1.5,
+    # Card index (left sidebar)
+    "index_visible": True,
+    "index_width": 170,
+    "index_font_size": 10,
     # Content
     "guides_dir": "guides",
     "current_guide": "guia.txt",
@@ -41,8 +47,17 @@ DEFAULTS: dict[str, Any] = {
         "quit": "Ctrl+Alt+Q",
         "first": "Ctrl+Alt+Home",
         "last": "Ctrl+Alt+End",
-        "opacity_up": "Ctrl+Alt+PageUp",
-        "opacity_down": "Ctrl+Alt+PageDown",
+        "background_more": "Ctrl+Alt+PageUp",
+        "background_less": "Ctrl+Alt+PageDown",
+        "text_more": "Ctrl+Alt+Shift+Right",
+        "text_less": "Ctrl+Alt+Shift+Left",
+        "snap_top_left": "Ctrl+Alt+Shift+Home",
+        "snap_top_right": "Ctrl+Alt+Shift+PageUp",
+        "snap_bottom_right": "Ctrl+Alt+Shift+End",
+        "snap_bottom_left": "Ctrl+Alt+Shift+PageDown",
+        "snap_top_center": "Ctrl+Alt+Shift+Up",
+        "snap_bottom_center": "Ctrl+Alt+Shift+Down",
+        "toggle_index": "Ctrl+Alt+I",
         "click_through": "Ctrl+Alt+T",
         "next_guide": "Ctrl+Alt+G",
         "timer": "Ctrl+Alt+S",
@@ -68,7 +83,8 @@ DEFAULTS: dict[str, Any] = {
 }
 
 FONT_MIN, FONT_MAX = 9, 96
-OPACITY_MIN, OPACITY_MAX = 0.15, 1.0
+INDEX_FONT_MIN, INDEX_FONT_MAX = 7, 28
+BACKGROUND_MIN, TEXT_MIN, OPACITY_MAX = 0.0, 0.2, 1.0
 SPLIT_MODES = ("auto", "separator", "heading", "paragraph", "none")
 
 
@@ -91,9 +107,26 @@ def _clamp(value, low, high, fallback):
         return fallback
 
 
+def _migrate(cfg: dict) -> None:
+    """Carry settings from older versions over to their new names."""
+    if "opacity" in cfg:  # <= 1.0: one opacity for the whole window
+        cfg["background_opacity"] = cfg.pop("opacity")
+    keys = cfg.get("hotkeys", {})
+    for old, new in (("opacity_up", "background_more"), ("opacity_down", "background_less")):
+        if old in keys:
+            keys[new] = keys.pop(old)
+
+
 def sanitize(cfg: dict) -> dict:
+    _migrate(cfg)
     cfg["font_size"] = _clamp(cfg["font_size"], FONT_MIN, FONT_MAX, DEFAULTS["font_size"])
-    cfg["opacity"] = _clamp(cfg["opacity"], OPACITY_MIN, OPACITY_MAX, DEFAULTS["opacity"])
+    cfg["background_opacity"] = _clamp(cfg["background_opacity"], BACKGROUND_MIN, OPACITY_MAX,
+                                       DEFAULTS["background_opacity"])
+    cfg["text_opacity"] = _clamp(cfg["text_opacity"], TEXT_MIN, OPACITY_MAX, DEFAULTS["text_opacity"])
+    cfg["index_width"] = _clamp(cfg["index_width"], 60, 2000, DEFAULTS["index_width"])
+    cfg["index_font_size"] = _clamp(cfg["index_font_size"], INDEX_FONT_MIN, INDEX_FONT_MAX,
+                                    DEFAULTS["index_font_size"])
+    cfg["snap_margin"] = _clamp(cfg["snap_margin"], 0, 500, DEFAULTS["snap_margin"])
     cfg["width"] = _clamp(cfg["width"], 280, 10000, DEFAULTS["width"])
     cfg["height"] = _clamp(cfg["height"], 160, 10000, DEFAULTS["height"])
     cfg["line_spacing"] = _clamp(cfg["line_spacing"], 1.0, 3.0, DEFAULTS["line_spacing"])

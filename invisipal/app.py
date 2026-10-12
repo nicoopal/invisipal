@@ -10,9 +10,19 @@ import tkinter.font as tkfont
 from datetime import datetime
 from pathlib import Path
 
-from . import __version__, hotkeys, markdown, win32
+from . import __version__, hotkeys, layout, markdown, win32
 from . import cards as cardlib
-from .config import FONT_MAX, FONT_MIN, OPACITY_MAX, OPACITY_MIN, SPLIT_MODES, Config
+from .config import (
+    BACKGROUND_MIN,
+    FONT_MAX,
+    FONT_MIN,
+    INDEX_FONT_MAX,
+    INDEX_FONT_MIN,
+    OPACITY_MAX,
+    SPLIT_MODES,
+    TEXT_MIN,
+    Config,
+)
 from .guides import GuideLibrary
 
 FALLBACK_GUIDE = """# Welcome to Invisipal
@@ -40,7 +50,10 @@ LOCAL_KEYS = [
     ("←  ↑  Backspace  PgUp", "previous card"),
     ("Home / End", "first / last card"),
     ("+ / −   Ctrl+Wheel", "bigger / smaller text"),
-    ("Alt+Wheel", "opacity"),
+    ("Alt+Wheel", "background opacity"),
+    ("Alt+Shift+Wheel", "text opacity"),
+    ("A", "appearance sliders (background, text, size)"),
+    ("I", "show / hide the card index"),
     ("E", "edit this guide (Ctrl+S saves, Ctrl+Enter card break, Esc cancels)"),
     ("L", "guide library"),
     ("Ctrl+V", "paste clipboard as a new guide"),
@@ -58,8 +71,17 @@ ACTION_LABELS = {
     "quit": "quit",
     "first": "first card",
     "last": "last card",
-    "opacity_up": "more opaque",
-    "opacity_down": "more transparent",
+    "background_more": "background more opaque",
+    "background_less": "background more transparent",
+    "text_more": "text more opaque",
+    "text_less": "text more transparent",
+    "snap_top_left": "move to top left",
+    "snap_top_right": "move to top right",
+    "snap_bottom_right": "move to bottom right",
+    "snap_bottom_left": "move to bottom left",
+    "snap_top_center": "move to top center (near the webcam)",
+    "snap_bottom_center": "move to bottom center",
+    "toggle_index": "show / hide card index",
     "click_through": "click-through on / off",
     "next_guide": "switch to next guide",
     "timer": "start / pause timer",
@@ -90,6 +112,11 @@ class InvisipalApp:
         self.hotkey_list: list[hotkeys.Hotkey] = []
 
         self.hwnd = 0
+        self.key = layout.key_color(self.theme["background"])  # fully transparent color
+        self.backdrop: tk.Toplevel | None = None  # translucent background layer
+        self.backdrop_hwnd = 0
+        self.appearance_open = False
+        self._index_hover = None
         self.visible = True
         self.click_through = False
         self.protection = "pending"
@@ -135,6 +162,8 @@ class InvisipalApp:
         self.ui_bold = tkfont.Font(self.root, family="Segoe UI Semibold", size=10)
         self.icon_font = tkfont.Font(self.root, family="Segoe UI Symbol", size=11)
         self.editor_font = tkfont.Font(self.root, family=mono, size=11)
+        self.index_font = tkfont.Font(self.root, family=body, size=self.cfg["index_font_size"])
+        self.index_bold = tkfont.Font(self.root, family=body, size=self.cfg["index_font_size"], weight="bold")
         self._apply_font_size()
 
     def _apply_font_size(self) -> None:
@@ -147,8 +176,10 @@ class InvisipalApp:
     def _build_ui(self) -> None:
         t = self.theme
         root = self.root
-        root.configure(bg=t["border"])
-        self.frame = tk.Frame(root, bg=t["background"])
+        # Everything painted in the key color is fully transparent; the separate
+        # backdrop window underneath provides the (translucent) background.
+        root.configure(bg=self.key)
+        self.frame = tk.Frame(root, bg=self.key)
         self.frame.pack(fill="both", expand=True, padx=1, pady=1)
 
         # Header: drag handle + status + buttons
@@ -158,9 +189,11 @@ class InvisipalApp:
             self.logo = tk.PhotoImage(file=str(ASSETS / "header.png"))
         except tk.TclError:
             self.logo = None
+        self.index_btn = self._button(self.header, "◧", self.toggle_index, font=self.icon_font, padx=6)
+        self.index_btn.pack(side="left", padx=(2, 0))
         self.logo_label = tk.Label(self.header, image=self.logo, bg=t["surface"], padx=0)
         if self.logo:
-            self.logo_label.pack(side="left", padx=(8, 0))
+            self.logo_label.pack(side="left", padx=(2, 0))
         self.title_label = tk.Label(self.header, text="Invisipal", bg=t["surface"], fg=t["accent"],
                                     font=self.ui_bold, padx=6 if self.logo else 10, pady=5)
         self.title_label.pack(side="left")
@@ -174,13 +207,14 @@ class InvisipalApp:
         self.help_btn = self._button(self.header, "?", lambda: self.show_view("help"), font=self.ui_bold)
         self.edit_btn = self._button(self.header, "✎", lambda: self.show_view("editor"), font=self.icon_font)
         self.lib_btn = self._button(self.header, "☰", lambda: self.show_view("library"), font=self.icon_font)
+        self.look_btn = self._button(self.header, "◐", self.toggle_appearance, font=self.icon_font)
         self.counter = tk.Label(self.header, text="0 / 0", bg=t["surface"], fg=t["text"],
                                 font=self.ui_bold, padx=8)
         self.timer_label = self._button(self.header, "00:00", self.toggle_timer, font=self.ui_font)
         self.timer_label.bind("<Double-Button-1>", lambda e: self.reset_timer())
         self.badge = self._button(self.header, "● …", lambda: self.show_view("help"), font=self.ui_font)
         for widget in (self.quit_btn, self.hide_btn, self.help_btn, self.edit_btn, self.lib_btn,
-                       self.counter, self.timer_label, self.badge):
+                       self.look_btn, self.counter, self.timer_label, self.badge):
             widget.pack(side="right")
         for widget in (self.header, self.logo_label, self.title_label):
             widget.bind("<ButtonPress-1>", self._drag_start)
@@ -190,6 +224,7 @@ class InvisipalApp:
         self.progress = tk.Canvas(self.frame, height=3, bg=t["surface"], highlightthickness=0, bd=0)
         self.progress.pack(fill="x", side="top")
         self.progress.bind("<Configure>", lambda e: self._draw_progress())
+        self._build_appearance()
 
         # Footer: prev / status / next / resize grip
         self.footer = tk.Frame(self.frame, bg=t["surface"])
@@ -208,16 +243,17 @@ class InvisipalApp:
                                font=self.ui_font, anchor="center")
         self.status.pack(side="left", fill="x", expand=True)
 
-        self.body = tk.Frame(self.frame, bg=t["background"])
+        self.body = tk.Frame(self.frame, bg=self.key)
         self.body.pack(fill="both", expand=True)
         self._build_reader()
         self._build_editor()
         self._build_library()
         self._build_help()
-        self.views = {"reader": self.reader, "editor": self.editor_frame,
+        self.views = {"reader": self.reader_pane, "editor": self.editor_frame,
                       "library": self.library_frame, "help": self.help_frame}
-        self.reader.pack(fill="both", expand=True)
+        self.reader_pane.pack(fill="both", expand=True)
 
+        root.bind("<Configure>", self._on_root_configure, add="+")
         root.bind("<Key>", self._on_key)
         root.bind("<Escape>", lambda e: self.leave_view())
 
@@ -246,7 +282,26 @@ class InvisipalApp:
 
     def _build_reader(self) -> None:
         t = self.theme
-        self.reader = self._text_widget(self.body)
+        # Card index on the left, the card itself on the right; the sash resizes the index.
+        self.reader_pane = tk.PanedWindow(self.body, orient="horizontal", bg=t["border"], bd=0,
+                                          sashwidth=3, sashrelief="flat", showhandle=False, opaqueresize=True)
+        self.index_list = self._text_widget(self.reader_pane, bg=self.key, fg=t["muted"], font=self.index_font,
+                                       wrap="none", padx=12, pady=14, spacing1=3, spacing3=3, cursor="hand2")
+        ix = self.index_list
+        ix.tag_configure("num", foreground=t["muted"])
+        ix.tag_configure("current", foreground=t["accent"], font=self.index_bold)
+        ix.tag_configure("hover", foreground=t["text"])
+        ix.bind("<Button-1>", self._on_index_click)
+        ix.bind("<Motion>", self._on_index_motion)
+        ix.bind("<Leave>", lambda e: self._set_index_hover(None))
+        ix.bind("<MouseWheel>", self._on_wheel)
+        ix.bind("<Control-MouseWheel>", self._on_index_ctrl_wheel)
+        self.reader = self._text_widget(self.reader_pane, bg=self.key)
+        self.reader_pane.add(self.index_list, width=self.cfg["index_width"], minsize=60, stretch="never")
+        self.reader_pane.add(self.reader, minsize=140, stretch="always")
+        if not self.cfg["index_visible"]:
+            self.reader_pane.forget(self.index_list)
+        self.reader_pane.bind("<ButtonRelease-1>", self._on_sash_release)
         r = self.reader
         r.tag_configure("body", font=self.fonts["body"])
         r.tag_configure("body_b", font=self.fonts["body_b"])
@@ -271,6 +326,7 @@ class InvisipalApp:
         r.bind("<MouseWheel>", self._on_wheel)
         r.bind("<Control-MouseWheel>", self._on_ctrl_wheel)
         r.bind("<Alt-MouseWheel>", self._on_alt_wheel)
+        r.bind("<Alt-Shift-MouseWheel>", self._on_alt_shift_wheel)
 
     def _build_editor(self) -> None:
         t = self.theme
@@ -345,9 +401,11 @@ class InvisipalApp:
         root = self.root
         root.overrideredirect(True)
         root.attributes("-alpha", 0.0)  # stay invisible until capture exclusion is active
+        root.attributes("-transparentcolor", self.key)
         root.attributes("-topmost", bool(self.cfg["always_on_top"]))
         root.minsize(MIN_W, MIN_H)
         root.geometry(self._initial_geometry())
+        self._create_backdrop()
 
         self.load_initial_guide()
         root.update()
@@ -359,8 +417,9 @@ class InvisipalApp:
             root.deiconify()
             root.update()
             self._refresh_hwnd()
+        self._link_backdrop()
         self._ensure_protection(force=True)
-        root.attributes("-alpha", self.cfg["opacity"])
+        self._apply_opacity()
 
         self._start_hotkeys()
         if self.cfg.load_error:
@@ -408,10 +467,19 @@ class InvisipalApp:
     def _ensure_protection(self, force: bool = False) -> None:
         if not win32.IS_WINDOWS:
             return
-        status = win32.affinity_status(self.hwnd, self.protect)
         wanted = "excluded" if self.protect else "off"
-        if force or status not in (wanted, "blackout"):
-            status = win32.set_capture_excluded(self.hwnd, self.protect)
+        statuses = []
+        for hwnd in (self.hwnd, self.backdrop_hwnd):
+            if not hwnd:
+                continue
+            status = win32.affinity_status(hwnd, self.protect)
+            if force or status not in (wanted, "blackout"):
+                status = win32.set_capture_excluded(hwnd, self.protect)
+            statuses.append(status)
+        if not statuses:
+            return
+        # The badge reports the weakest of the two layers.
+        status = next((s for s in ("failed", "off", "blackout") if s in statuses), statuses[0])
         if status != self.protection:
             self.protection = status
             text, color = PROTECTION_BADGES[status]
@@ -422,9 +490,12 @@ class InvisipalApp:
         """Tk can recreate its wrapper window; keep affinity + styles applied."""
         try:
             self._refresh_hwnd()
+            self._link_backdrop()
             self._ensure_protection()
             if self.click_through:
-                win32.set_click_through(self.hwnd, True)
+                for hwnd in (self.hwnd, self.backdrop_hwnd):
+                    if hwnd:
+                        win32.set_click_through(hwnd, True)
             self._check_file_changed()
         finally:
             self.root.after(1000, self._watchdog)
@@ -442,8 +513,12 @@ class InvisipalApp:
             "next": self.next_card, "prev": self.prev_card,
             "first": lambda: self.go_to(0), "last": lambda: self.go_to(len(self.cards) - 1),
             "font_up": lambda: self.change_font(FONT_STEP), "font_down": lambda: self.change_font(-FONT_STEP),
-            "opacity_up": lambda: self.change_opacity(OPACITY_STEP),
-            "opacity_down": lambda: self.change_opacity(-OPACITY_STEP),
+            "background_more": lambda: self.change_background(OPACITY_STEP),
+            "background_less": lambda: self.change_background(-OPACITY_STEP),
+            "text_more": lambda: self.change_text_opacity(OPACITY_STEP),
+            "text_less": lambda: self.change_text_opacity(-OPACITY_STEP),
+            "toggle_index": self.toggle_index,
+            **{f"snap_{where}": (lambda w=where: self.snap(w)) for where in layout.SNAP_POSITIONS},
             "toggle": self.toggle_visible, "show": self.show, "reload": self.reload,
             "quit": self.quit, "click_through": self.toggle_click_through,
             "next_guide": self.next_guide, "timer": self.toggle_timer,
@@ -456,6 +531,8 @@ class InvisipalApp:
         if self.visible:
             self._store_geometry()
             self.root.withdraw()
+            if self.backdrop:
+                self.backdrop.withdraw()
             self.visible = False
 
     def show(self) -> None:
@@ -469,8 +546,9 @@ class InvisipalApp:
         self.root.lift()
         self.root.update_idletasks()
         self._refresh_hwnd()
+        self._link_backdrop()
         self._ensure_protection()
-        self.root.attributes("-alpha", self.cfg["opacity"])
+        self._apply_opacity()
         if previous and previous != self.hwnd:
             win32.restore_foreground(previous)  # don't steal focus from the meeting app
 
@@ -480,15 +558,257 @@ class InvisipalApp:
     def toggle_click_through(self) -> None:
         self.click_through = not self.click_through
         if win32.IS_WINDOWS:
-            win32.set_click_through(self.hwnd, self.click_through)
+            for hwnd in (self.hwnd, self.backdrop_hwnd):
+                if hwnd:
+                    win32.set_click_through(hwnd, self.click_through)
         self.title_label.config(text="Invisipal  ⇣ click-through" if self.click_through else "Invisipal")
         self.toast("Click-through ON — mouse passes through" if self.click_through else "Click-through OFF")
 
-    def change_opacity(self, delta: float) -> None:
-        value = round(min(OPACITY_MAX, max(OPACITY_MIN, self.cfg["opacity"] + delta)), 2)
-        self.cfg["opacity"] = value
-        self.root.attributes("-alpha", value)
-        self.toast(f"Opacity {round(value * 100)}%")
+    def change_background(self, delta: float) -> None:
+        self.set_background(self.cfg["background_opacity"] + delta)
+        self.toast(f"Background {round(self.cfg['background_opacity'] * 100)}%")
+
+    def change_text_opacity(self, delta: float) -> None:
+        self.set_text_opacity(self.cfg["text_opacity"] + delta)
+        self.toast(f"Text {round(self.cfg['text_opacity'] * 100)}%")
+
+    def set_background(self, value: float) -> None:
+        self.cfg["background_opacity"] = round(min(OPACITY_MAX, max(BACKGROUND_MIN, value)), 2)
+        self._apply_opacity()
+        self._schedule_save()
+
+    def set_text_opacity(self, value: float) -> None:
+        self.cfg["text_opacity"] = round(min(OPACITY_MAX, max(TEXT_MIN, value)), 2)
+        self._apply_opacity()
+        self._schedule_save()
+
+    def _apply_opacity(self) -> None:
+        """Text layer = root window alpha; background layer = backdrop window alpha."""
+        if self.visible:
+            self.root.attributes("-alpha", self.cfg["text_opacity"])
+            if self.backdrop:
+                background = self.cfg["background_opacity"]
+                if background <= 0.0:
+                    self.backdrop.withdraw()  # nothing to show, and don't catch clicks
+                else:
+                    if self.backdrop.state() == "withdrawn":
+                        self.backdrop.attributes("-alpha", 0.0)
+                        self.backdrop.deiconify()
+                        self.root.update_idletasks()
+                        self._link_backdrop()
+                        self._ensure_protection()
+                    self.backdrop.attributes("-alpha", background)
+        self._update_appearance_labels()
+
+    # -------------------------------------------------------- backdrop layer
+    def _create_backdrop(self) -> None:
+        t = self.theme
+        b = tk.Toplevel(self.root)
+        b.overrideredirect(True)
+        b.attributes("-alpha", 0.0)
+        b.attributes("-topmost", bool(self.cfg["always_on_top"]))
+        b.configure(bg=t["background"])
+        self.backdrop_canvas = tk.Canvas(b, bg=t["background"], highlightthickness=0, bd=0, cursor="fleur")
+        self.backdrop_canvas.pack(fill="both", expand=True)
+        c = self.backdrop_canvas
+        c.bind("<Configure>", lambda e: self._draw_backdrop())
+        # Clicks on the see-through parts of the text layer land here: drag to move.
+        c.bind("<ButtonPress-1>", self._on_backdrop_press)
+        c.bind("<B1-Motion>", self._drag_move)
+        c.bind("<ButtonRelease-1>", lambda e: self._schedule_save())
+        c.bind("<MouseWheel>", self._on_backdrop_wheel)
+        b.geometry(self.root.geometry())
+        self.backdrop = b
+
+    def _on_backdrop_press(self, event) -> None:
+        self._drag_start(event)
+        self.root.focus_force()
+        self.reader.focus_set()
+
+    def _on_backdrop_wheel(self, event) -> None:
+        self.reader.yview_scroll(-1 if event.delta > 0 else 1, "units")
+        self._update_hint()
+
+    def _draw_backdrop(self) -> None:
+        c = self.backdrop_canvas
+        c.delete("all")
+        c.create_rectangle(0, 0, c.winfo_width() - 1, c.winfo_height() - 1, outline=self.theme["border"])
+
+    def _link_backdrop(self) -> None:
+        """Keep the backdrop exactly under the text window (same rect, owned below it)."""
+        if not (self.backdrop and win32.IS_WINDOWS and self.hwnd):
+            return
+        if self.backdrop.state() == "withdrawn":
+            return
+        self.backdrop_hwnd = win32.toplevel_hwnd(self.backdrop.winfo_id())
+        if not self.backdrop_hwnd or self.backdrop_hwnd == self.hwnd:
+            self.backdrop_hwnd = 0
+            return
+        win32.set_taskbar_visible(self.backdrop_hwnd, False)
+        if win32.get_owner(self.hwnd) != self.backdrop_hwnd:
+            if win32.get_owner(self.backdrop_hwnd) == self.hwnd:
+                win32.set_owner(self.backdrop_hwnd, 0)
+            win32.set_owner(self.hwnd, self.backdrop_hwnd)  # owned windows stay above their owner
+            self.root.lift()
+        self._sync_backdrop()
+
+    def _sync_backdrop(self) -> None:
+        if not (self.backdrop and self.hwnd):
+            return
+        x, y, w, h = win32.window_rect(self.hwnd)
+        if w > 1 and h > 1 and self.backdrop.geometry() != f"{w}x{h}+{x}+{y}":
+            self.backdrop.geometry(f"{w}x{h}+{x}+{y}")
+
+    def _on_root_configure(self, event) -> None:
+        if event.widget is self.root:
+            self._sync_backdrop()
+
+    # ------------------------------------------------------------ positions
+    def snap(self, where: str) -> None:
+        if not self.hwnd:
+            return
+        _, _, w, h = win32.window_rect(self.hwnd)
+        x, y = layout.snap_position(win32.work_area(self.hwnd), (w, h), where, self.cfg["snap_margin"])
+        self.root.geometry(f"+{x}+{y}")
+        self.root.update_idletasks()
+        self._sync_backdrop()
+        self.toast(where.replace("_", " ").capitalize())
+        self._schedule_save()
+
+    # ----------------------------------------------------------- appearance
+    def _build_appearance(self) -> None:
+        """Inline sliders (no popups: a separate window would be capturable)."""
+        t = self.theme
+        bar = tk.Frame(self.frame, bg=t["surface"])
+        self.appearance_bar = bar
+        self.appearance_labels = {}
+        self.appearance_sliders = []
+        specs = [
+            ("background", BACKGROUND_MIN, OPACITY_MAX, lambda: self.cfg["background_opacity"], self.set_background),
+            ("text", TEXT_MIN, OPACITY_MAX, lambda: self.cfg["text_opacity"], self.set_text_opacity),
+            ("size", FONT_MIN, 48, lambda: self.cfg["font_size"], self._set_font_size),
+        ]
+        for key, lo, hi, getter, setter in specs:
+            cell = tk.Frame(bar, bg=t["surface"])
+            cell.pack(side="left", padx=(12, 4), pady=(2, 6))
+            label = tk.Label(cell, bg=t["surface"], fg=t["muted"], font=self.ui_font, anchor="w", width=14)
+            label.pack(anchor="w")
+            self.appearance_labels[key] = label
+            slider = self._slider(cell, lo, hi, getter, setter)
+            slider.pack(anchor="w")
+            self.appearance_sliders.append(slider)
+        self._update_appearance_labels()
+
+    def _slider(self, parent, lo, hi, getter, setter, width=120) -> tk.Canvas:
+        t = self.theme
+        c = tk.Canvas(parent, width=width, height=14, bg=t["surface"], highlightthickness=0, bd=0, cursor="hand2")
+
+        def draw() -> None:
+            c.delete("all")
+            x = 6 + (getter() - lo) / (hi - lo) * (width - 12)
+            c.create_line(6, 7, width - 6, 7, fill=t["border"], width=3, capstyle="round")
+            c.create_line(6, 7, x, 7, fill=t["accent"], width=3, capstyle="round")
+            c.create_oval(x - 6, 1, x + 6, 13, fill=t["text"], outline="")
+
+        def pick(event) -> None:
+            setter(lo + min(1.0, max(0.0, (event.x - 6) / (width - 12))) * (hi - lo))
+            draw()
+
+        c.bind("<Button-1>", pick)
+        c.bind("<B1-Motion>", pick)
+        c.redraw = draw
+        draw()
+        return c
+
+    def _update_appearance_labels(self) -> None:
+        if not getattr(self, "appearance_labels", None):
+            return
+        self.appearance_labels["background"].config(text=f"Background {round(self.cfg['background_opacity'] * 100)}%")
+        self.appearance_labels["text"].config(text=f"Text {round(self.cfg['text_opacity'] * 100)}%")
+        self.appearance_labels["size"].config(text=f"Size {self.cfg['font_size']}")
+        for slider in self.appearance_sliders:
+            slider.redraw()
+
+    def toggle_appearance(self) -> None:
+        self.appearance_open = not self.appearance_open
+        if self.appearance_open:
+            self.appearance_bar.pack(fill="x", side="top", after=self.progress)
+            self._update_appearance_labels()
+        else:
+            self.appearance_bar.pack_forget()
+
+    def _set_font_size(self, value: float) -> None:
+        size = int(round(value))
+        if size != self.cfg["font_size"]:
+            self.change_font(size - self.cfg["font_size"])
+
+    # ----------------------------------------------------------- card index
+    def toggle_index(self) -> None:
+        visible = not self.cfg["index_visible"]
+        if visible:
+            self.cfg["index_visible"] = True
+            self.reader_pane.add(self.index_list, before=self.reader, width=self.cfg["index_width"],
+                                 minsize=60, stretch="never")
+            self._render_index()
+        else:
+            self._store_index_width()
+            self.cfg["index_visible"] = False
+            self.reader_pane.forget(self.index_list)
+        self.toast("Card index shown" if visible else "Card index hidden")
+        self._schedule_save()
+
+    def _render_index(self) -> None:
+        if not self.cfg["index_visible"]:
+            return
+        ix = self.index_list
+        ix.configure(state="normal")
+        ix.delete("1.0", "end")
+        digits = len(str(len(self.cards)))
+        for i, card in enumerate(self.cards):
+            current = ("current",) if i == self.index else ()
+            ix.insert("end", f"{i + 1:>{digits}}  ", ("num",) + current)
+            ix.insert("end", (card.title or "…") + "\n", current)
+        ix.configure(state="disabled")
+        if self.cards:
+            ix.see(f"{self.index + 1}.0")
+        self._index_hover = None
+
+    def _index_line(self, event) -> int:
+        return int(self.index_list.index(f"@{event.x},{event.y}").split(".")[0]) - 1
+
+    def _on_index_click(self, event) -> str:
+        line = self._index_line(event)
+        if 0 <= line < len(self.cards):
+            self.go_to(line)
+        return "break"
+
+    def _on_index_motion(self, event) -> None:
+        line = self._index_line(event)
+        self._set_index_hover(line if 0 <= line < len(self.cards) else None)
+
+    def _set_index_hover(self, line) -> None:
+        if line == self._index_hover:
+            return
+        self.index_list.tag_remove("hover", "1.0", "end")
+        if line is not None:
+            self.index_list.tag_add("hover", f"{line + 1}.0", f"{line + 1}.end")
+        self._index_hover = line
+
+    def _on_index_ctrl_wheel(self, event) -> str:
+        size = self.cfg["index_font_size"] + (1 if event.delta > 0 else -1)
+        size = min(INDEX_FONT_MAX, max(INDEX_FONT_MIN, size))
+        self.cfg["index_font_size"] = size
+        self.index_font.configure(size=size)
+        self.index_bold.configure(size=size)
+        self._schedule_save()
+        return "break"
+
+    def _store_index_width(self) -> None:
+        if self.cfg["index_visible"] and self.index_list.winfo_ismapped():
+            self.cfg["index_width"] = max(60, self.index_list.winfo_width())
+
+    def _on_sash_release(self, _event=None) -> None:
+        self._store_index_width()
         self._schedule_save()
 
     def change_font(self, delta: int) -> None:
@@ -607,6 +927,7 @@ class InvisipalApp:
         total = len(self.cards)
         self.counter.config(text=f"{self.index + 1 if total else 0} / {total}")
         self._draw_progress()
+        self._render_index()
         self.root.after_idle(self._update_hint)
 
     def _insert_line(self, line: markdown.Line) -> None:
@@ -749,6 +1070,10 @@ class InvisipalApp:
             self.show_view("editor")
         elif key.lower() == "l":
             self.show_view("library")
+        elif key.lower() == "i":
+            self.toggle_index()
+        elif key.lower() == "a":
+            self.toggle_appearance()
         elif key == "question" or event.char == "?":
             self.show_view("help")
         elif key == "F5":
@@ -767,7 +1092,11 @@ class InvisipalApp:
         return "break"
 
     def _on_alt_wheel(self, event) -> str:
-        self.change_opacity(OPACITY_STEP if event.delta > 0 else -OPACITY_STEP)
+        self.change_background(OPACITY_STEP if event.delta > 0 else -OPACITY_STEP)
+        return "break"
+
+    def _on_alt_shift_wheel(self, event) -> str:
+        self.change_text_opacity(OPACITY_STEP if event.delta > 0 else -OPACITY_STEP)
         return "break"
 
     # --------------------------------------------------------------- editor
@@ -978,7 +1307,9 @@ class InvisipalApp:
 
     # ----------------------------------------------------- move / resize / save
     def _drag_start(self, event) -> None:
-        self._drag = (event.x_root - self.root.winfo_x(), event.y_root - self.root.winfo_y())
+        x, y = (win32.window_rect(self.hwnd)[:2] if self.hwnd
+                else (self.root.winfo_x(), self.root.winfo_y()))
+        self._drag = (event.x_root - x, event.y_root - y)
 
     def _drag_move(self, event) -> None:
         dx, dy = self._drag

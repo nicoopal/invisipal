@@ -37,7 +37,9 @@ Pure Python standard library (tkinter + ctypes). No dependencies, no installer, 
 - **One card at a time** (`3 / 10`), with a progress bar and a preview of the next card's title.
 - **Global hotkeys** that work while another app has focus, so your meeting window never loses it. All rebindable.
 - **Teleprompter paging**: on a long card, "next" scrolls down a page first and only then advances.
-- **Translucent, borderless, always on top**, with adjustable opacity and text size, and optional click-through so the mouse passes straight through it.
+- **Translucent, borderless, always on top**, with **separate background and text opacity** (down to text floating on its own), adjustable text size, and optional click-through so the mouse passes straight through it.
+- **Card index** on the left: click any card to jump to it. Resizable and hideable.
+- **Snap to corners**: hotkeys move the window to any corner or to the top center, under your webcam.
 - **Hidden from the taskbar and Alt+Tab** by default, because the taskbar is part of what you share.
 - **Everything happens inside the one protected window**: reader, editor, guide library and help. There are no popups, menus or dialogs, because those would be separate windows that *can* be captured.
 - **Plain-text guides**: `.md` / `.txt` files in a folder. Edit them in VS Code or Notepad and Invisipal reloads them automatically.
@@ -185,6 +187,14 @@ In a test against the same requests without the skill (a Spanish sales call from
 
 Then just ask, for example: *"Turn these notes into Invisipal cards for my call with Acme tomorrow"* or *"armame las tarjetas para la reunión del lunes"*.
 
+## The window
+
+**Background and text transparency, separately.** The window is made of two layers: a background layer and a text layer on top of it, both hidden from capture. Set each one on its own with the `◐` sliders (or `A`), with the hotkeys, or with `Alt` + wheel (background) and `Alt` + `Shift` + wheel (text). A good setup for reading over a slide is a background around 30 to 60% with the text at 100%. At 0% only the letters float on screen; their edges then show a thin dark outline, like subtitles, which keeps them readable over light content.
+
+**Card index.** The left column lists every card by number and title, with the current one highlighted. Click a card to jump to it. Drag the divider to make the column wider or narrower, use `Ctrl` + wheel over it to change its text size, and hide or show it with `◧`, `I` or `Ctrl+Alt+I`. Its width, size and visibility are remembered.
+
+**Corners and center.** `Ctrl+Alt+Shift` plus `Home`, `PageUp`, `End` or `PageDown` moves the window to the top-left, top-right, bottom-right or bottom-left corner of the screen it's on (above the taskbar), and `Ctrl+Alt+Shift+Up` / `Down` centers it at the top or bottom. Top center sits right under most webcams, so you can read while looking at the camera.
+
 ## Keyboard shortcuts
 
 ### Global hotkeys
@@ -197,7 +207,15 @@ They work from any app, without focus, and are registered with the system (`Regi
 | `Ctrl+Alt+Left` | `prev` | Previous card (scrolls back up first on a long card) |
 | `Ctrl+Alt+Home` / `End` | `first` / `last` | First / last card |
 | `Ctrl+Alt+Up` / `Down` | `font_up` / `font_down` | Bigger / smaller text (hold to repeat) |
-| `Ctrl+Alt+PageUp` / `PageDown` | `opacity_up` / `opacity_down` | More opaque / more transparent (hold to repeat) |
+| `Ctrl+Alt+PageUp` / `PageDown` | `background_more` / `background_less` | Background more opaque / more transparent (hold to repeat) |
+| `Ctrl+Alt+Shift+Right` / `Left` | `text_more` / `text_less` | Text more opaque / more transparent (hold to repeat) |
+| `Ctrl+Alt+Shift+Home` | `snap_top_left` | Move the window to the top-left corner |
+| `Ctrl+Alt+Shift+PageUp` | `snap_top_right` | Move to the top-right corner |
+| `Ctrl+Alt+Shift+End` | `snap_bottom_right` | Move to the bottom-right corner |
+| `Ctrl+Alt+Shift+PageDown` | `snap_bottom_left` | Move to the bottom-left corner |
+| `Ctrl+Alt+Shift+Up` | `snap_top_center` | Move to the top center, right under a typical webcam, so you look at the camera while reading |
+| `Ctrl+Alt+Shift+Down` | `snap_bottom_center` | Move to the bottom center |
+| `Ctrl+Alt+I` | `toggle_index` | Show / hide the card index |
 | `Ctrl+Alt+H` | `toggle` | Show / hide the window, without stealing focus from your meeting app |
 | `Ctrl+Alt+T` | `click_through` | Click-through on / off. When on, the mouse passes through the window. The title shows "click-through". |
 | `Ctrl+Alt+G` | `next_guide` | Switch to the next guide in the folder |
@@ -221,6 +239,8 @@ Hotkeys are rebindable in `config.json`; setting one to `""` disables it. See [C
 | `+` / `-` | Bigger / smaller text |
 | `E` | Edit this guide (`Ctrl+S` saves, `Esc` cancels, `Ctrl+Enter` inserts a card break) |
 | `L` | Guide library |
+| `I` | Show / hide the card index |
+| `A` | Appearance sliders: background opacity, text opacity, text size |
 | `Ctrl+V` | Paste the clipboard as a new guide |
 | `F5` | Reload from disk |
 | `?` | Help: status, every shortcut, file locations |
@@ -230,11 +250,16 @@ Hotkeys are rebindable in `config.json`; setting one to `""` disables it. See [C
 
 | Action | Result |
 |---|---|
-| Drag the header | Move the window |
+| Drag the header, or any see-through part of the background | Move the window |
 | Drag the `◢` grip (bottom-right) | Resize |
 | `Ctrl` + wheel | Text size |
-| `Alt` + wheel | Opacity |
+| `Alt` + wheel | Background opacity |
+| `Alt` + `Shift` + wheel | Text opacity |
 | Wheel | Scroll a long card |
+| Click a card in the index | Jump to that card |
+| Drag the line between the index and the card | Make the index wider / narrower |
+| `Ctrl` + wheel over the index | Index text size |
+| `◧` / `◐` | Show / hide the index / the appearance sliders |
 | Click the `‹` / `›` buttons | Previous / next card |
 | Click the guide name or `☰` | Library |
 | Click the timer | Start / pause |
@@ -267,15 +292,20 @@ Settings are stored in `config.json` in your data folder (see [Where your data l
 |---|---|---|
 | `x`, `y` | `null` | Window position in pixels. `null` places it in the top-right corner. If the saved position is off-screen, the default is used. |
 | `width`, `height` | `620`, `440` | Window size (minimum 280 x 160). |
-| `opacity` | `0.85` | Window opacity, from `0.15` to `1.0`. |
+| `background_opacity` | `0.8` | Opacity of the window background, from `0.0` (only the text floats on screen) to `1.0`. Replaces `opacity` from 1.0, which is migrated automatically. |
+| `text_opacity` | `1.0` | Opacity of the text, header and footer, from `0.2` to `1.0`. |
+| `snap_margin` | `16` | Gap in pixels between the window and the screen edge when you move it to a corner. |
+| `index_visible` | `true` | Show the card index on the left. |
+| `index_width` | `170` | Width of the card index in pixels (drag the divider to change it). |
+| `index_font_size` | `10` | Text size of the card index, from 7 to 28 (`Ctrl` + wheel over it). |
 | `always_on_top` | `true` | Keep the window above other windows. |
 | `show_in_taskbar` | `false` | Show a taskbar button and list it in Alt+Tab. Off by default because the taskbar is part of what you share. Applied at startup. |
 | `capture_protection` | `true` | Hide the window from screen capture. `false` makes it visible to others (same as `--no-protect`). |
 | `font_family` | `"Segoe UI"` | Text font for cards. Falls back to Segoe UI if not installed. |
 | `mono_family` | `"Cascadia Mono"` | Font for code and the editor. Falls back to Consolas, then Courier New. |
 | `font_size` | `20` | Card text size, from 9 to 96. Changed with the size hotkeys. |
-| `line_spacing` | `1.45` | Line spacing multiplier, from 1.0 to 3.0. |
-| `guides_dir` | `"guides"` | Guides folder; relative paths are relative to the app folder, absolute paths work too. |
+| `line_spacing` | `1.5` | Total line height in ems, from 1.0 to 3.0. |
+| `guides_dir` | `"guides"` | Guides folder; relative paths are relative to the data folder, absolute paths work too. |
 | `current_guide` | `"guia.txt"` | File name of the open guide. Updated as you switch guides. |
 | `split_mode` | `"auto"` | `auto`, `separator`, `heading`, `paragraph` or `none`. See [How cards are split](#how-cards-are-split). |
 | `auto_reload` | `true` | Reload the guide when it changes on disk. |
@@ -288,7 +318,7 @@ Settings are stored in `config.json` in your data folder (see [Where your data l
 
 ```json
 {
-  "opacity": 0.9,
+  "background_opacity": 0.5,
   "font_size": 26,
   "hotkeys": {
     "next": "Ctrl+Alt+N",

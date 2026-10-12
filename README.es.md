@@ -39,7 +39,11 @@ Si ya está abierto, volver a lanzarlo solo muestra la ventana existente. Opcion
 | `Ctrl+Alt+→` / `Ctrl+Alt+←` | Tarjeta siguiente / anterior (en una tarjeta larga, primero baja o sube una página) |
 | `Ctrl+Alt+Inicio` / `Ctrl+Alt+Fin` | Primera / última tarjeta |
 | `Ctrl+Alt+↑` / `Ctrl+Alt+↓` | Letra más grande / más chica |
-| `Ctrl+Alt+RePág` / `Ctrl+Alt+AvPág` | Más opaca / más transparente |
+| `Ctrl+Alt+RePág` / `Ctrl+Alt+AvPág` | Fondo más opaco / más transparente |
+| `Ctrl+Alt+Shift+→` / `Ctrl+Alt+Shift+←` | Texto más opaco / más transparente |
+| `Ctrl+Alt+Shift+Inicio` / `RePág` / `Fin` / `AvPág` | Mover a la esquina superior izquierda / superior derecha / inferior derecha / inferior izquierda |
+| `Ctrl+Alt+Shift+↑` / `Ctrl+Alt+Shift+↓` | Mover arriba al centro (debajo de la cámara) / abajo al centro |
+| `Ctrl+Alt+I` | Mostrar / ocultar el índice de tarjetas |
 | `Ctrl+Alt+H` | Mostrar / ocultar (sin robar el foco) |
 | `Ctrl+Alt+T` | Modo "click-through": el mouse atraviesa la ventana |
 | `Ctrl+Alt+G` | Pasar a la siguiente guía |
@@ -51,15 +55,21 @@ Todos se pueden cambiar en `config.json` (sección `hotkeys`); un valor `""` des
 
 ### Con la ventana enfocada
 
-`→`, `Espacio`, `AvPág` siguiente · `←`, `Retroceso`, `RePág` anterior · `Inicio` / `Fin` primera / última · `+` / `-` tamaño de letra · `E` editar (`Ctrl+S` guarda, `Esc` cancela) · `L` biblioteca de guías · `Ctrl+V` pega el portapapeles como una guía nueva · `F5` recargar · `?` ayuda con todos los atajos.
+`→`, `Espacio`, `AvPág` siguiente · `←`, `Retroceso`, `RePág` anterior · `Inicio` / `Fin` primera / última · `+` / `-` tamaño de letra · `E` editar (`Ctrl+S` guarda, `Esc` cancela) · `L` biblioteca de guías · `I` índice de tarjetas · `A` controles de transparencia y tamaño · `Ctrl+V` pega el portapapeles como una guía nueva · `F5` recargar · `?` ayuda con todos los atajos.
 
-Con el mouse: arrastrar el encabezado para mover, arrastrar `◢` para cambiar el tamaño, `Ctrl`+rueda para el tamaño de letra, `Alt`+rueda para la opacidad, doble clic en el cronómetro para reiniciarlo.
+Con el mouse: arrastrar el encabezado para mover, arrastrar `◢` para cambiar el tamaño, `Ctrl`+rueda para el tamaño de letra, `Alt`+rueda para la transparencia del fondo, `Alt+Shift`+rueda para la del texto, clic en el índice para saltar a una tarjeta, doble clic en el cronómetro para reiniciarlo.
 
 ### Teclados con AltGr (español latinoamericano, alemán, etc.)
 
 Windows interpreta AltGr como `Ctrl+Alt`. Un atajo global `Ctrl+Alt+Q` impediría escribir `@` (que en estos teclados es `AltGr+Q`) en cualquier programa. Por eso Invisipal detecta cuándo una combinación `Ctrl+Alt+tecla` escribe un carácter en el teclado activo y, en ese caso, registra automáticamente `Ctrl+Alt+Shift+tecla` (por ejemplo `Ctrl+Alt+Shift+Q` para salir). La ayuda (`?`) muestra la combinación realmente vigente. Se controla con `avoid_altgr_conflicts` (por defecto `true`).
 
 Si en la ayuda un atajo aparece como `(in use by another app)`, otro programa lo tiene reservado. Algunos drivers de gráficos Intel usan `Ctrl+Alt+flechas` para rotar la pantalla: desactivar esos atajos en el panel de Intel o cambiar el atajo en `config.json`.
+
+## Ventana: transparencia, índice y posiciones
+
+- **Transparencia del fondo y del texto por separado**: con el botón `◐` (o la tecla `A`) aparecen los controles de Fondo, Texto y Tamaño. También con `Ctrl+Alt+RePág/AvPág` (fondo), `Ctrl+Alt+Shift+→/←` (texto), `Alt`+rueda (fondo) y `Alt+Shift`+rueda (texto). Con el fondo en 0 % solo flotan las letras, con un borde oscuro fino tipo subtítulo.
+- **Índice de tarjetas** a la izquierda: un clic en una tarjeta salta a ella. Se agranda o achica arrastrando el divisor, `Ctrl`+rueda cambia su letra, y se oculta o muestra con `◧`, `I` o `Ctrl+Alt+I`.
+- **Posiciones en pantalla**: `Ctrl+Alt+Shift+Inicio` arriba a la izquierda, `+RePág` arriba a la derecha, `+Fin` abajo a la derecha, `+AvPág` abajo a la izquierda, `+↑` arriba al centro (debajo de la cámara, para leer mirando a cámara) y `+↓` abajo al centro. Respeta la barra de tareas y funciona en el monitor donde esté la ventana.
 
 ## Cómo escribir tarjetas
 

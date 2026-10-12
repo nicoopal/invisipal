@@ -46,7 +46,7 @@ So by default (`"avoid_altgr_conflicts": true`) Invisipal checks each `Ctrl+Alt+
 - If it is running but positioned outside your monitors (after unplugging a display, for example), quit it (`Ctrl+Alt+Q`), open `config.json` and delete the `"x"` and `"y"` lines (or set them to `null`), then start it again. It will appear at the top-right of the primary screen. Invisipal already ignores a saved position that is not on any monitor, so this is rarely needed.
 - If you don't see it in the taskbar or Alt+Tab, that's by design: set `"show_in_taskbar": true` if you want it listed (this makes it visible in the taskbar you share).
 - If Click-through is on (the title says "click-through"), the window ignores the mouse. Press `Ctrl+Alt+T` to turn it off.
-- Opacity can be turned down to the point of near-invisible. Press `Ctrl+Alt+PageUp` several times.
+- The background can go down to 0% and the text to 20%. Press `Ctrl+Alt+PageUp` (background) or `Ctrl+Alt+Shift+Right` (text) a few times, or open the sliders with `◐`.
 
 ## The text is too big or too small
 

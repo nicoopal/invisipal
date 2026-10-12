@@ -43,6 +43,17 @@ So `InvisipalApp.run()`:
 
 A fully transparent window shows nothing even without protection, so there is no moment in which content is visible and unprotected.
 
+## Two layers: background and text opacity
+
+A layered window has a single alpha value, so with one window the text always fades together with the background. To control them separately Invisipal uses two top-level windows, both capture-excluded:
+
+- **Backdrop** (a `Toplevel`): just the background color and border. Its window alpha is `background_opacity`. At `0` it is withdrawn instead, so it doesn't catch clicks.
+- **Text layer** (the root window): the reader, header, footer and card index. Its background is painted in a *key color* one step away from the theme background, and `-transparentcolor` makes every pixel of exactly that color fully transparent (`LWA_COLORKEY`). Its window alpha is `text_opacity`.
+
+The text layer is made an **owned window** of the backdrop (`GWLP_HWNDPARENT`), which makes Windows keep it directly above the backdrop in the z-order. A `<Configure>` handler and the watchdog keep the backdrop at exactly the same rectangle. Clicks on the see-through parts land on the backdrop, which forwards them (focus, scrolling, dragging to move).
+
+Color keying is binary, so anti-aliased text edges, which blend toward the key color, stay opaque. Because the key is the background color, that edge is a thin dark outline: invisible at normal background opacity, and a subtitle-like outline when the background is very transparent.
+
 ## Finding the right window handle
 
 Tk's `root.winfo_id()` returns the handle of an **inner child window**, not of the top-level window that Windows shows on screen. `SetWindowDisplayAffinity` and extended-style changes only work on the top-level window, so Invisipal climbs to it with `GetAncestor(hwnd, GA_ROOT)` (`win32.toplevel_hwnd`).
