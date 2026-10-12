@@ -1,4 +1,4 @@
-"""Settings persisted to ``config.json`` next to the script (or the .exe)."""
+"""Settings persisted to ``config.json`` in the data folder (see ``paths.py``)."""
 
 from __future__ import annotations
 

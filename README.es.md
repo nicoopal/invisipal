@@ -81,7 +81,7 @@ Todo (editor, biblioteca, ayuda) ocurre dentro de la misma ventana protegida a p
 
 ## Dónde se guardan los datos
 
-`config.json` y la carpeta `guides/` están junto a `invisipal.pyw` (o junto al `.exe`). Se pueden mover con `--data-dir`. Las guías personales no se suben a git (ver `.gitignore`). La configuración completa está documentada en el [README en inglés](README.md#configuration).
+Todo se guarda en **`Documentos\Invisipal`**: `config.json` (posición, tamaño, letra, opacidad, atajos) y la carpeta `guides\` con una guía por reunión. La carpeta se crea sola la primera vez, con las guías de ejemplo. Si Documentos está en OneDrive, las guías quedan sincronizadas. Actualizar o reinstalar Invisipal no toca esa carpeta. Para el modo portable (todo junto a la app, por ejemplo en un pendrive), crear un archivo vacío llamado `portable` junto a `invisipal.pyw` o `Invisipal.exe`. `--data-dir` permite usar cualquier otra carpeta. La configuración completa está documentada en el [README en inglés](README.md#configuration).
 
 La ventana no aparece en la barra de tareas ni en Alt+Tab (`show_in_taskbar: false`), porque la barra de tareas sí forma parte de lo que se comparte.
 

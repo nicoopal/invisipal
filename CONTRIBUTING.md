@@ -21,7 +21,7 @@ The app itself has no runtime dependencies; `pytest` and `ruff` are for developm
 ```powershell
 python -m invisipal                    # with a console, handy for tracebacks
 pythonw invisipal.pyw                  # without a console, like end users
-python -m invisipal --data-dir .\.dev  # use a throwaway config.json and guides/
+python -m invisipal --data-dir .\.dev  # throwaway data instead of Documents\Invisipal
 python -m invisipal --no-protect       # window visible to capture, e.g. to take screenshots of it
 ```
 
@@ -51,6 +51,7 @@ The result is written to `dist/`. Releases are built by `.github/workflows/relea
 | `invisipal.pyw` | Double-click launcher (no console window) |
 | `invisipal/__main__.py` | CLI flags, data folder resolution, single-instance check, app start |
 | `invisipal/app.py` | The Tk window: header, reader / editor / library / help views, local keys, timer, watchdog, auto-reload |
+| `invisipal/paths.py` | Data folder: `Documents\Invisipal` by default, `portable` marker, first-run seeding |
 | `invisipal/win32.py` | All `ctypes` Win32 calls: display affinity, extended styles, single-instance event, AltGr probe, DPI |
 | `invisipal/hotkeys.py` | Hotkey parsing, AltGr conflict resolution, the `RegisterHotKey` message-loop thread |
 | `invisipal/cards.py` | Splitting a guide into cards (separator / heading / paragraph / none) |

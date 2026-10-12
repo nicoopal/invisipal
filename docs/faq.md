@@ -58,13 +58,13 @@ The file is not valid JSON (a missing comma or quote, for example). Invisipal mo
 
 ## Where are my guides and settings? How do I back them up?
 
-In the folder that contains `invisipal.pyw` (or `Invisipal.exe`): the `guides/` folder and `config.json`. Press `?` to see the exact paths. Copy those two items to back them up or move them to another PC. Guides are plain text, so putting the folder in OneDrive, Dropbox or a private Git repository works well; use `--data-dir` to keep your data somewhere else:
+In `Documents\Invisipal`: the `guides\` folder and `config.json`. Press `?` to see the exact paths. If your Documents folder is synced by OneDrive (the Windows default on many PCs), your guides are already backed up. Otherwise copy that folder to back it up or move it to another PC. To keep data somewhere else, use `--data-dir`, or create an empty `portable` file next to the app to keep everything next to it:
 
 ```powershell
 pythonw invisipal.pyw --data-dir "D:\Notes\invisipal"
 ```
 
-Personal guides in `guides/` are ignored by the project's `.gitignore`, so they are never committed by accident.
+If you run from a clone in portable mode, personal guides in the repo's `guides/` folder are ignored by `.gitignore`, so they are never committed by accident.
 
 ## How do I delete or rename a guide?
 

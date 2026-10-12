@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Settings and guides now live in `Documents\Invisipal` (OneDrive-redirected Documents supported), seeded with the example guides on first run; an older `config.json` next to the app is copied over. An empty `portable` file next to the app keeps data next to the app instead.
+
 ## [1.0.0] - 2026-10-12
 
 Initial release.

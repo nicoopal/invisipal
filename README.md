@@ -50,7 +50,7 @@ Pure Python standard library (tkinter + ctypes). No dependencies, no installer, 
 ### Option A: download the release (no Python needed)
 
 1. Download the zip from the [Releases page](https://github.com/nicoopal/invisipal/releases).
-2. Extract it anywhere you can write to (not `Program Files`: `config.json` and `guides/` are stored next to the `.exe`).
+2. Extract it anywhere (your settings and guides are stored in `Documents\Invisipal`, not next to the `.exe`).
 3. Run `Invisipal.exe`.
 
 ### Option B: run from source
@@ -209,9 +209,26 @@ Hotkeys are rebindable in `config.json`; setting one to `""` disables it. See [C
 | Click the badge | Open the help view |
 | `—` / `✕` | Hide / quit |
 
+## Where your data lives
+
+Everything Invisipal writes lives in **`Documents\Invisipal`**:
+
+```text
+Documents\Invisipal\
+├── config.json        window position and size, text size, opacity, hotkeys…
+└── guides\            one .md / .txt file per meeting
+```
+
+- The folder is created on first run and seeded with the example guides. If you delete an example, it doesn't come back.
+- The Documents folder is looked up through Windows (`SHGetKnownFolderPath`), so a Documents folder redirected to **OneDrive** works, and your guides sync and get backed up automatically.
+- Updating or reinstalling Invisipal never touches this folder. If an older version kept `config.json` next to the app, it is copied over the first time.
+- Press `?` in the app to see the exact paths, or click **Open folder** in the library (`L`).
+
+**Portable mode.** To keep everything next to the app instead (for example on a USB stick), create an empty file named `portable` (no extension) next to `invisipal.pyw` / `Invisipal.exe`. `--data-dir PATH` overrides both.
+
 ## Configuration
 
-Settings are stored in `config.json` next to `invisipal.pyw` (or the `.exe`). It is created on first run and updated automatically when you move the window, change the text size, and so on. Edit it while Invisipal is closed (the app rewrites the file), and you only need to include the keys you want to change; everything else keeps its default.
+Settings are stored in `config.json` in your data folder (see [Where your data lives](#where-your-data-lives)). It is created on first run and updated automatically when you move the window, change the text size, and so on. Edit it while Invisipal is closed (the app rewrites the file), and you only need to include the keys you want to change; everything else keeps its default.
 
 | Key | Default | Meaning |
 |---|---|---|
@@ -262,7 +279,7 @@ pythonw invisipal.pyw [options]      (or: python -m invisipal [options])
 
 | Flag | Meaning |
 |---|---|
-| `--data-dir PATH` | Folder holding `config.json` and `guides/` (default: next to the app). Useful for separate profiles or a cloud-synced folder. |
+| `--data-dir PATH` | Folder holding `config.json` and `guides/` (default: `Documents\Invisipal`). Useful for separate profiles or a custom synced folder. |
 | `--guide NAME` | Open this guide (a file name inside the guides folder). |
 | `--no-protect` | Do **not** hide the window from capture. For demos and for taking screenshots of Invisipal itself. The badge shows `● VISIBLE`. |
 | `--version` | Print the version and exit. |
@@ -320,7 +337,6 @@ Ideas, not promises. Open an issue if one of these matters to you.
 - Per-card timers and a pace indicator
 - Search and jump to a card
 - Themes
-- Portable profiles
 - winget / Scoop packages
 
 ## Contributing

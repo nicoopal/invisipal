@@ -5,11 +5,11 @@
 .DESCRIPTION
   Output:
     dist\Invisipal\Invisipal.exe
-    dist\Invisipal\guides\*          (example guides, editable next to the exe)
+    dist\Invisipal\guides\*          (example guides, copied to Documents\Invisipal on first run)
     dist\Invisipal-<version>-win64.zip
 
-  When frozen, the app keeps config.json and guides\ next to the exe (see app_dir()
-  in invisipal\__main__.py), so the zip is fully portable.
+  User data lives in Documents\Invisipal (see invisipal\paths.py). Creating an
+  empty file named "portable" next to the exe keeps it next to the exe instead.
 
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File scripts\build.ps1
@@ -68,12 +68,13 @@ Invoke-Native python $pyiArgs
 $exe = Join-Path $root 'dist\Invisipal\Invisipal.exe'
 if (-not (Test-Path $exe)) { throw "Build finished but $exe is missing" }
 
-# Example guides live next to the exe so users can edit them.
+# Example guides ship next to the exe; the app seeds Documents\Invisipal from them.
+# Only the tracked examples are copied, never personal guides from a dev checkout.
 $guidesOut = Join-Path $root 'dist\Invisipal\guides'
 New-Item -ItemType Directory -Force -Path $guidesOut | Out-Null
-$guidesSrc = Join-Path $root 'guides'
-if (Test-Path $guidesSrc) {
-    Get-ChildItem -Path $guidesSrc -File | Copy-Item -Destination $guidesOut -Force
+foreach ($example in @('guia.txt', 'demo-meeting.md')) {
+    $src = Join-Path $root "guides\$example"
+    if (Test-Path $src) { Copy-Item -Path $src -Destination $guidesOut -Force }
 }
 
 foreach ($extra in @('README.md', 'LICENSE')) {

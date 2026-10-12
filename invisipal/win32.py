@@ -150,6 +150,33 @@ def claim_single_instance(name: str = "Local\\Invisipal.SingleInstance.v1"):
     return handle
 
 
+def documents_folder() -> str | None:
+    """The user's Documents folder, following OneDrive / group-policy redirection."""
+    if not IS_WINDOWS:
+        return None
+
+    class GUID(ctypes.Structure):
+        _fields_ = [("Data1", wintypes.DWORD), ("Data2", wintypes.WORD),
+                    ("Data3", wintypes.WORD), ("Data4", ctypes.c_ubyte * 8)]
+
+    # FOLDERID_Documents {FDD39AD0-238F-46AF-ADB4-6C85480369C7}
+    folder_id = GUID(0xFDD39AD0, 0x238F, 0x46AF, (ctypes.c_ubyte * 8)(0xAD, 0xB4, 0x6C, 0x85, 0x48, 0x03, 0x69, 0xC7))
+    path_ptr = ctypes.c_wchar_p()
+    shell32 = ctypes.WinDLL("shell32")
+    ole32 = ctypes.WinDLL("ole32")
+    shell32.SHGetKnownFolderPath.argtypes = [
+        ctypes.POINTER(GUID), wintypes.DWORD, wintypes.HANDLE, ctypes.POINTER(ctypes.c_wchar_p),
+    ]
+    shell32.SHGetKnownFolderPath.restype = ctypes.c_long
+    ole32.CoTaskMemFree.argtypes = [ctypes.c_void_p]
+    if shell32.SHGetKnownFolderPath(ctypes.byref(folder_id), 0, None, ctypes.byref(path_ptr)) != 0:
+        return None
+    try:
+        return path_ptr.value
+    finally:
+        ole32.CoTaskMemFree(path_ptr)
+
+
 # --- Window helpers ---------------------------------------------------------
 
 def toplevel_hwnd(tk_widget_id: int) -> int:

@@ -6,20 +6,17 @@ import argparse
 import sys
 from pathlib import Path
 
-from . import __version__, win32
+from . import __version__, paths, win32
 from .config import Config
-
-
-def app_dir() -> Path:
-    """Folder that holds config.json and guides/ (next to the script or .exe)."""
-    if getattr(sys, "frozen", False):
-        return Path(sys.executable).resolve().parent
-    return Path(__file__).resolve().parent.parent
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="invisipal", description=__doc__)
-    parser.add_argument("--data-dir", type=Path, help="folder for config.json and guides/ (default: next to the app)")
+    parser.add_argument(
+        "--data-dir",
+        type=Path,
+        help=r"folder for config.json and guides/ (default: Documents\Invisipal)",
+    )
     parser.add_argument("--guide", help="open this guide file (name inside guides/)")
     parser.add_argument(
         "--no-protect",
@@ -37,8 +34,8 @@ def main(argv: list[str] | None = None) -> int:
     if wake_event is None:
         return 0  # already running: it has been asked to show itself
 
-    base = (args.data_dir or app_dir()).resolve()
-    base.mkdir(parents=True, exist_ok=True)
+    base = paths.resolve_data_dir(args.data_dir)
+    paths.prepare_data_dir(base)
     cfg = Config(base / "config.json").load()
     if args.guide:
         cfg["current_guide"] = args.guide

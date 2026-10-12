@@ -32,3 +32,5 @@ guides/*
 Thumbs.db
 desktop.ini
 config.broken.json
+.dev/
+portable
