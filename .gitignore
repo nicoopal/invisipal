@@ -21,10 +21,8 @@ config.json
 *.json.tmp
 *.tmp
 
-# Personal guides stay local; only the examples are tracked
-guides/*
-!guides/guia.txt
-!guides/demo-meeting.md
+# Personal guides (portable mode in a dev checkout) stay local
+guides/
 
 # Editors / OS
 .vscode/

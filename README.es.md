@@ -11,7 +11,11 @@ Solo usa la biblioteca estándar de Python (tkinter + ctypes): cero dependencias
 ## Requisitos
 
 - Windows 10 versión 2004 o superior, o Windows 11. En builds anteriores de Windows 10 la ventana se ve como un rectángulo negro (el indicador dice `● blacked out`).
-- Python 3.10+ (con tkinter, incluido en el instalador de python.org), o el `.exe` de la [página de releases](https://github.com/nicoopal/invisipal/releases), que no necesita Python.
+- Python 3.10+ (con tkinter, incluido en el instalador de python.org), o bien el ejecutable, que no necesita Python:
+  - **[Instalador](https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal-Setup.exe)** (recomendado): se instala solo para el usuario, sin permisos de administrador. Agrega Invisipal al menú Inicio y, si se quiere, al escritorio y al inicio de Windows. Se desinstala desde *Configuración → Aplicaciones*.
+  - **[Portable](https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal-portable.exe)**: un único `.exe`, sin instalar nada.
+
+  Si aparece "Windows protegió su PC" (los ejecutables todavía no están firmados): **Más información → Ejecutar de todas formas**.
 
 ## Cómo ejecutarlo
 
@@ -22,7 +26,7 @@ pythonw invisipal.pyw        # sin ventana de consola
 # o bien:  python -m invisipal
 ```
 
-También sirve hacer doble clic en `invisipal.pyw`, o ejecutar `Invisipal.exe` si se descargó el release.
+También sirve hacer doble clic en `invisipal.pyw`, o abrir Invisipal desde el menú Inicio si se usó el instalador.
 
 Si ya está abierto, volver a lanzarlo solo muestra la ventana existente. Opciones de línea de comandos: `--data-dir CARPETA`, `--guide ARCHIVO`, `--no-protect` (deja la ventana visible para los demás; útil para capturas y demos) y `--version`.
 
@@ -75,7 +79,7 @@ Gracias por el tiempo. El objetivo de hoy: salir con una decisión.
 
 Si no hay `---`, se divide por títulos (`#` o `##`); si tampoco hay títulos, por párrafos (líneas en blanco). Se entiende un Markdown básico: títulos, listas, listas de tareas (`- [ ]`), citas, código, `**negrita**`, `*cursiva*`, `==resaltado==` y `~~tachado~~`. No hay tablas, imágenes ni links; conviene evitar emojis.
 
-Atajos para crear guías: copiar un texto y apretar `Ctrl+V` en Invisipal lo convierte en una guía nueva; `L` abre la biblioteca; `E` abre el editor integrado. Además, cualquier editor externo (VS Code, Bloc de notas) sirve: Invisipal recarga el archivo solo cuando cambia. Ejemplo incluido: [`guides/guia.txt`](guides/guia.txt).
+Atajos para crear guías: copiar un texto y apretar `Ctrl+V` en Invisipal lo convierte en una guía nueva; `L` abre la biblioteca; `E` abre el editor integrado. Además, cualquier editor externo (VS Code, Bloc de notas) sirve: Invisipal recarga el archivo solo cuando cambia. Ejemplo incluido: [`invisipal/examples/guia.txt`](invisipal/examples/guia.txt).
 
 Todo (editor, biblioteca, ayuda) ocurre dentro de la misma ventana protegida a propósito: los popups o menús serían ventanas aparte, y esas sí se capturarían.
 

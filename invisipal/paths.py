@@ -17,6 +17,7 @@ from .guides import GUIDE_EXTENSIONS
 
 APP_FOLDER_NAME = "Invisipal"
 PORTABLE_MARKER = "portable"
+EXAMPLES_DIR = Path(__file__).resolve().parent / "examples"
 
 
 def app_dir() -> Path:
@@ -42,30 +43,33 @@ def resolve_data_dir(override: Path | None = None, app: Path | None = None) -> P
 
 
 def prepare_data_dir(data: Path, app: Path | None = None) -> list[str]:
-    """Create the data folder on first run and seed it from the app folder.
+    """Create the data folder on first run and seed it.
 
-    Copies the example guides (and, for people upgrading, any guides and the
-    ``config.json`` that used to live next to the app). Seeding happens only
-    when ``guides`` does not exist yet, so deleted examples never come back.
-    Returns a list of human-readable notes about what was copied.
+    Copies the bundled example guides, plus (for people upgrading from a
+    version that kept data next to the app) any guides and the ``config.json``
+    found in the app folder. Seeding only happens when ``guides`` does not
+    exist yet, so deleted examples never come back. Returns notes about what
+    was copied.
     """
     app = app or app_dir()
     data.mkdir(parents=True, exist_ok=True)
     guides = data / "guides"
-    if data.resolve() == app.resolve() or guides.exists():
-        guides.mkdir(exist_ok=True)
+    if guides.exists():
         return []
-
     guides.mkdir()
+
     notes: list[str] = []
-    source = app / "guides"
-    if source.is_dir():
+    legacy = app / "guides"
+    for source in (EXAMPLES_DIR, legacy):
+        if not source.is_dir() or source.resolve() == guides.resolve():
+            continue
         for file in sorted(source.iterdir()):
-            if file.is_file() and file.suffix.lower() in GUIDE_EXTENSIONS:
-                shutil.copy2(file, guides / file.name)
+            target = guides / file.name
+            if file.is_file() and file.suffix.lower() in GUIDE_EXTENSIONS and not target.exists():
+                shutil.copy2(file, target)
                 notes.append(f"copied guide {file.name}")
     old_config = app / "config.json"
-    if old_config.is_file() and not (data / "config.json").exists():
+    if data.resolve() != app.resolve() and old_config.is_file() and not (data / "config.json").exists():
         shutil.copy2(old_config, data / "config.json")
         notes.append("copied config.json")
     return notes

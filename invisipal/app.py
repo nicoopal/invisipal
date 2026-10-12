@@ -30,6 +30,7 @@ Press `Ctrl+Alt+→` for the next card.
 - Press **?** for every shortcut
 """
 
+ASSETS = Path(__file__).resolve().parent / "assets"
 FONT_STEP = 2
 OPACITY_STEP = 0.05
 MIN_W, MIN_H = 280, 160
@@ -107,6 +108,10 @@ class InvisipalApp:
 
         self.root = tk.Tk()
         self.root.title("Invisipal")
+        try:
+            self.root.iconbitmap(default=str(ASSETS / "invisipal.ico"))
+        except tk.TclError:
+            pass
         self._init_fonts()
         self._build_ui()
 
@@ -149,8 +154,15 @@ class InvisipalApp:
         # Header: drag handle + status + buttons
         self.header = tk.Frame(self.frame, bg=t["surface"])
         self.header.pack(fill="x", side="top")
+        try:
+            self.logo = tk.PhotoImage(file=str(ASSETS / "header.png"))
+        except tk.TclError:
+            self.logo = None
+        self.logo_label = tk.Label(self.header, image=self.logo, bg=t["surface"], padx=0)
+        if self.logo:
+            self.logo_label.pack(side="left", padx=(8, 0))
         self.title_label = tk.Label(self.header, text="Invisipal", bg=t["surface"], fg=t["accent"],
-                                    font=self.ui_bold, padx=10, pady=5)
+                                    font=self.ui_bold, padx=6 if self.logo else 10, pady=5)
         self.title_label.pack(side="left")
         self.guide_label = tk.Label(self.header, text="", bg=t["surface"], fg=t["muted"],
                                     font=self.ui_font, pady=5, cursor="hand2")
@@ -170,7 +182,7 @@ class InvisipalApp:
         for widget in (self.quit_btn, self.hide_btn, self.help_btn, self.edit_btn, self.lib_btn,
                        self.counter, self.timer_label, self.badge):
             widget.pack(side="right")
-        for widget in (self.header, self.title_label):
+        for widget in (self.header, self.logo_label, self.title_label):
             widget.bind("<ButtonPress-1>", self._drag_start)
             widget.bind("<B1-Motion>", self._drag_move)
             widget.bind("<ButtonRelease-1>", lambda e: self._schedule_save())

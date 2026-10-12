@@ -52,6 +52,8 @@ QS_ALLINPUT = 0x04FF
 WAIT_OBJECT_0 = 0x00000000
 INFINITE = 0xFFFFFFFF
 ERROR_ALREADY_EXISTS = 183
+APP_MUTEX_NAME = "Invisipal.AppMutex"
+_app_mutex = None
 
 MONITOR_DEFAULTTONULL = 0
 
@@ -113,6 +115,8 @@ if IS_WINDOWS:
     user32.ToUnicodeEx.restype = ctypes.c_int
     kernel32.CreateEventW.argtypes = [wintypes.LPVOID, wintypes.BOOL, wintypes.BOOL, wintypes.LPCWSTR]
     kernel32.CreateEventW.restype = wintypes.HANDLE
+    kernel32.CreateMutexW.argtypes = [wintypes.LPVOID, wintypes.BOOL, wintypes.LPCWSTR]
+    kernel32.CreateMutexW.restype = wintypes.HANDLE
     kernel32.SetEvent.argtypes = [wintypes.HANDLE]
     kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
     kernel32.GetCurrentThreadId.restype = wintypes.DWORD
@@ -147,6 +151,10 @@ def claim_single_instance(name: str = "Local\\Invisipal.SingleInstance.v1"):
         kernel32.SetEvent(handle)
         kernel32.CloseHandle(handle)
         return None
+    # Held for the life of the process so the installer (Inno Setup AppMutex)
+    # can tell Invisipal is running and ask the user to close it first.
+    global _app_mutex
+    _app_mutex = kernel32.CreateMutexW(None, False, APP_MUTEX_NAME)
     return handle
 
 

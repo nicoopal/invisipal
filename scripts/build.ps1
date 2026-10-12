@@ -1,12 +1,16 @@
 <#
 .SYNOPSIS
-  Builds Invisipal.exe (PyInstaller, one-folder, windowed) and zips it for release.
+  Builds the Invisipal release artifacts.
 
 .DESCRIPTION
-  Output:
-    dist\Invisipal\Invisipal.exe
-    dist\Invisipal\guides\*          (example guides, copied to Documents\Invisipal on first run)
-    dist\Invisipal-<version>-win64.zip
+  Output (fixed names, so /releases/latest/download/<name> links never break):
+    dist\Invisipal-Setup.exe      per-user installer (Inno Setup), the recommended download
+    dist\Invisipal-portable.exe   single-file exe, no install needed
+    dist\invisipal-cards.skill    the Claude skill (a zip of skills\invisipal-cards)
+    dist\Invisipal\               one-folder build the installer packs (intermediate)
+
+  The installer step needs Inno Setup 6 (ISCC.exe). If it isn't installed the
+  step is skipped with a warning; install it with: winget install JRSoftware.InnoSetup
 
   User data lives in Documents\Invisipal (see invisipal\paths.py). Creating an
   empty file named "portable" next to the exe keeps it next to the exe instead.
@@ -16,7 +20,8 @@
 #>
 [CmdletBinding()]
 param(
-    [switch]$KeepBuildDir
+    [switch]$KeepBuildDir,
+    [switch]$SkipInstaller
 )
 
 $ErrorActionPreference = 'Stop'
@@ -42,52 +47,69 @@ Write-Host "Building Invisipal $version"
 Invoke-Native python @('-m', 'PyInstaller', '--version')
 
 # Fresh output; keep it inside the repo (dist/ and build/ are gitignored).
-foreach ($dir in @('build', 'dist\Invisipal')) {
-    if (Test-Path $dir) { Remove-Item -Recurse -Force $dir }
+foreach ($path in @('build', 'dist')) {
+    if (Test-Path $path) { Remove-Item -Recurse -Force $path }
 }
 
-$pyiArgs = @(
+$icon = Join-Path $root 'invisipal\assets\invisipal.ico'
+$common = @(
     '-m', 'PyInstaller',
     '--noconfirm',
     '--clean',
     '--noconsole',
-    '--name', 'Invisipal',
-    '--specpath', 'build'
+    '--specpath', 'build',
+    '--icon', $icon,
+    # Icons and example guides are package data; PyInstaller doesn't collect them on its own.
+    '--add-data', ((Join-Path $root 'invisipal\assets') + ';invisipal\assets'),
+    '--add-data', ((Join-Path $root 'invisipal\examples') + ';invisipal\examples')
 )
-$icon = Join-Path $root 'assets\invisipal.ico'
-if (Test-Path $icon) {
-    $pyiArgs += @('--icon', $icon)
-}
-else {
-    Write-Host 'assets\invisipal.ico not found - building without a custom icon'
-}
-$pyiArgs += (Join-Path $root 'invisipal.pyw')
+$entry = Join-Path $root 'invisipal.pyw'
 
-Invoke-Native python $pyiArgs
-
+# 1) One-folder build: starts fast; the installer packs it.
+Invoke-Native python ($common + @('--name', 'Invisipal', $entry))
 $exe = Join-Path $root 'dist\Invisipal\Invisipal.exe'
 if (-not (Test-Path $exe)) { throw "Build finished but $exe is missing" }
 
-# Example guides ship next to the exe; the app seeds Documents\Invisipal from them.
-# Only the tracked examples are copied, never personal guides from a dev checkout.
-$guidesOut = Join-Path $root 'dist\Invisipal\guides'
-New-Item -ItemType Directory -Force -Path $guidesOut | Out-Null
-foreach ($example in @('guia.txt', 'demo-meeting.md')) {
-    $src = Join-Path $root "guides\$example"
-    if (Test-Path $src) { Copy-Item -Path $src -Destination $guidesOut -Force }
-}
+# 2) Single-file portable build.
+Invoke-Native python ($common + @('--onefile', '--name', 'Invisipal-portable', $entry))
+$portable = Join-Path $root 'dist\Invisipal-portable.exe'
+if (-not (Test-Path $portable)) { throw "Build finished but $portable is missing" }
 
-foreach ($extra in @('README.md', 'LICENSE')) {
-    $src = Join-Path $root $extra
-    if (Test-Path $src) { Copy-Item $src (Join-Path $root 'dist\Invisipal') -Force }
-}
+# 3) Claude skill package (.skill is a zip with the skill folder at its root).
+$skillDir = Join-Path $root 'skills\invisipal-cards'
+$cache = Join-Path $skillDir 'scripts\__pycache__'
+if (Test-Path $cache) { Remove-Item -Recurse -Force $cache }
+# Python's zipfile writes "/" separators (Compress-Archive on PowerShell 5.1 writes "\").
+Invoke-Native python @('-c', "import shutil; shutil.make_archive('dist/invisipal-cards', 'zip', 'skills', 'invisipal-cards')")
+Move-Item -Force (Join-Path $root 'dist\invisipal-cards.zip') (Join-Path $root 'dist\invisipal-cards.skill')
 
-$zip = Join-Path $root "dist\Invisipal-$version-win64.zip"
-if (Test-Path $zip) { Remove-Item -Force $zip }
-Compress-Archive -Path (Join-Path $root 'dist\Invisipal') -DestinationPath $zip -CompressionLevel Optimal
+# 4) Installer.
+$setup = Join-Path $root 'dist\Invisipal-Setup.exe'
+if (-not $SkipInstaller) {
+    $iscc = (Get-Command 'ISCC.exe' -ErrorAction SilentlyContinue).Source
+    if (-not $iscc) {
+        foreach ($candidate in @(
+                "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
+                "$env:ProgramFiles\Inno Setup 6\ISCC.exe",
+                "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe")) {
+            if (Test-Path $candidate) { $iscc = $candidate; break }
+        }
+    }
+    if ($iscc) {
+        Invoke-Native $iscc @("/DAppVersion=$version", "/DRoot=$root", (Join-Path $root 'installer\invisipal.iss'))
+        if (-not (Test-Path $setup)) { throw "Inno Setup finished but $setup is missing" }
+    }
+    else {
+        Write-Warning 'Inno Setup (ISCC.exe) not found: skipping the installer. winget install JRSoftware.InnoSetup'
+    }
+}
 
 if (-not $KeepBuildDir -and (Test-Path 'build')) { Remove-Item -Recurse -Force 'build' }
 
-$size = [math]::Round((Get-Item $zip).Length / 1MB, 1)
-Write-Host "Done: $exe"
-Write-Host "Zip : $zip ($size MB)"
+Write-Host ''
+foreach ($artifact in @($setup, $portable, (Join-Path $root 'dist\invisipal-cards.skill'))) {
+    if (Test-Path $artifact) {
+        $size = [math]::Round((Get-Item $artifact).Length / 1MB, 1)
+        Write-Host ("{0,-28} {1,6} MB" -f (Split-Path -Leaf $artifact), $size)
+    }
+}

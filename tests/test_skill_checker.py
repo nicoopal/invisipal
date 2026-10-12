@@ -26,7 +26,10 @@ SAMPLES = [
 ]
 
 
-@pytest.mark.parametrize("text", SAMPLES + [p.read_text(encoding="utf-8") for p in (ROOT / "guides").glob("*.*")])
+EXAMPLES = [p.read_text(encoding="utf-8") for p in (ROOT / "invisipal" / "examples").glob("*.*")]
+
+
+@pytest.mark.parametrize("text", SAMPLES + EXAMPLES)
 def test_same_cards_and_titles_as_app(text):
     app_cards = cards.split_cards(text)
     _, checker_cards = check_guide.split_cards(text)

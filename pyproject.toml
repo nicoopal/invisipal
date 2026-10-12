@@ -46,6 +46,9 @@ Changelog = "https://github.com/nicoopal/invisipal/releases"
 [tool.setuptools]
 packages = ["invisipal"]
 
+[tool.setuptools.package-data]
+invisipal = ["assets/*", "examples/*"]
+
 [tool.setuptools.dynamic]
 version = { attr = "invisipal.__version__" }
 

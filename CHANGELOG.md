@@ -11,8 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `invisipal-cards` Claude skill (`skills/invisipal-cards/`): interviews the user, turns any text into an Invisipal guide (cue cards, teleprompter script, hybrid or checklist), checks it with a bundled validator that mirrors the app's card splitting, and saves it to the guides folder. Released as `invisipal-cards.skill`.
 
+### Added (packaging)
+
+- App icon (an eye with a prohibition sign), also shown in the window header.
+- Per-user installer `Invisipal-Setup.exe` (Inno Setup: Start menu, optional desktop and startup shortcuts, uninstaller, refuses to run while Invisipal is open) and a single-file `Invisipal-portable.exe`, both with fixed names so `releases/latest/download/` links always work. The release zip is gone.
+
 ### Changed
 
+- Example guides moved into the package (`invisipal/examples/`) so every build seeds them.
 - Settings and guides now live in `Documents\Invisipal` (OneDrive-redirected Documents supported), seeded with the example guides on first run; an older `config.json` next to the app is copied over. An empty `portable` file next to the app keeps data next to the app instead.
 
 ## [1.0.0] - 2026-10-12
@@ -40,7 +46,7 @@ Initial release.
 - Remembered window position, size, opacity, text size and card position per guide, stored in `config.json`.
 - Customizable theme colors.
 - Command-line flags `--data-dir`, `--guide`, `--no-protect` and `--version`.
-- Example guides in Spanish (`guides/guia.txt`) and English (`guides/demo-meeting.md`).
+- Example guides in Spanish (`invisipal/examples/guia.txt`) and English (`invisipal/examples/demo-meeting.md`).
 - Pure Python standard library implementation (tkinter + ctypes) with no dependencies; buildable as a standalone `.exe` with `scripts/build.ps1`.
 
 [Unreleased]: https://github.com/nicoopal/invisipal/compare/v1.0.0...HEAD

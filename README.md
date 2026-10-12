@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="invisipal/assets/invisipal-512.png" alt="Invisipal logo: an eye with a red prohibition sign" width="120">
+
 # Invisipal
 
 **A private teleprompter for meetings. You see your notes. The people you share your screen with don't.**
@@ -48,11 +50,20 @@ Pure Python standard library (tkinter + ctypes). No dependencies, no installer, 
 
 ## Quick start
 
-### Option A: download the release (no Python needed)
+### Option A: download (no Python needed)
 
-1. Download the zip from the [Releases page](https://github.com/nicoopal/invisipal/releases).
-2. Extract it anywhere (your settings and guides are stored in `Documents\Invisipal`, not next to the `.exe`).
-3. Run `Invisipal.exe`.
+<p align="center">
+  <a href="https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal-Setup.exe"><img src="https://img.shields.io/badge/Download-Installer%20(recommended)-2ea44f?style=for-the-badge&logo=windows" alt="Download the installer"></a>
+  &nbsp;
+  <a href="https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal-portable.exe"><img src="https://img.shields.io/badge/Download-Portable%20.exe-555?style=for-the-badge&logo=windows" alt="Download the portable exe"></a>
+</p>
+
+- **Installer** (`Invisipal-Setup.exe`): installs for your user only (no admin rights), adds Invisipal to the Start menu, optionally to the desktop and to Windows startup, and shows up in *Settings → Apps* to uninstall. Run it again to upgrade.
+- **Portable** (`Invisipal-portable.exe`): a single file, nothing to install. Put it anywhere and double-click it. It takes a second or two longer to start.
+
+Both keep your settings and guides in `Documents\Invisipal`, so upgrading or uninstalling never touches them. All files are also on the [Releases page](https://github.com/nicoopal/invisipal/releases).
+
+> **"Windows protected your PC"?** The executables aren't code-signed yet, so SmartScreen may warn about an unrecognized app. Click **More info → Run anyway**. You can also check the source and build it yourself (below).
 
 ### Option B: run from source
 
@@ -144,7 +155,7 @@ Only a deliberately small subset is rendered, so cards stay readable at a glance
 
 Not supported: tables, images, links (shown as literal text), HTML. Emoji may not render well in Tk, so avoid them.
 
-A complete example lives in [`guides/demo-meeting.md`](guides/demo-meeting.md) (English) and [`guides/guia.txt`](guides/guia.txt) (Spanish).
+A complete example lives in [`invisipal/examples/demo-meeting.md`](invisipal/examples/demo-meeting.md) (English) and [`invisipal/examples/guia.txt`](invisipal/examples/guia.txt) (Spanish).
 
 ### Ways to create and edit guides
 

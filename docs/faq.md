@@ -76,7 +76,7 @@ Auto-reload checks once per second and is controlled by `"auto_reload"` (default
 
 ## One long card is cut off / how do I use it as a teleprompter?
 
-Put the whole script in one card: either a guide with no `---` lines and no `#`/`##` headings that you split with `"split_mode": "none"`, or a single card among others (see the last card of `guides/demo-meeting.md`). When a card is longer than the window, the status line shows `↓ more below` and "next" scrolls a page at a time, moving to the next card only at the end. Raise the text size to taste.
+Put the whole script in one card: either a guide with no `---` lines and no `#`/`##` headings that you split with `"split_mode": "none"`, or a single card among others (see the last card of `invisipal/examples/demo-meeting.md`). When a card is longer than the window, the status line shows `↓ more below` and "next" scrolls a page at a time, moving to the next card only at the end. Raise the text size to taste.
 
 ## Can I use it on macOS or Linux?
 

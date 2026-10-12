@@ -42,7 +42,7 @@ CI runs the same checks (`.github/workflows/ci.yml`). The pure-Python modules ar
 powershell -ExecutionPolicy Bypass -File scripts\build.ps1
 ```
 
-The result is written to `dist/`. Releases are built by `.github/workflows/release.yml`.
+The result is written to `dist/`: `Invisipal-Setup.exe` (needs [Inno Setup 6](https://jrsoftware.org/isinfo.php), skipped with a warning otherwise; `installer/invisipal.iss`), `Invisipal-portable.exe` and `invisipal-cards.skill`. Releases are built by `.github/workflows/release.yml` when a `v*` tag is pushed.
 
 ## Code layout
 
