@@ -1,0 +1,112 @@
+# Bienvenido a Invisipal
+
+Esta ventana **no aparece** cuando compartís la pantalla completa en Teams, Zoom o Meet.
+
+Vos la ves. Ellos no.
+
+Pasá a la siguiente tarjeta con `Ctrl+Alt+→`
+
+---
+
+## Cómo moverte
+
+- `Ctrl+Alt+→` / `Ctrl+Alt+←` — siguiente / anterior
+- `Ctrl+Alt+↑` / `Ctrl+Alt+↓` — letra más grande / más chica
+- `Ctrl+Alt+H` — mostrar / ocultar
+- `Ctrl+Alt+R` — recargar este archivo
+- `Ctrl+Alt+Q` — cerrar (si en tu teclado `AltGr+Q` escribe `@`, se usa `Ctrl+Alt+Shift+Q`)
+
+Los atajos funcionan **aunque la ventana no tenga foco**.
+
+---
+
+## Cómo armar tarjetas
+
+Cada línea que tenga solamente `---` empieza una tarjeta nueva.
+
+Si no hay `---`, se divide por títulos (`#` o `##`), y si tampoco hay títulos, por párrafos.
+
+> Tip: presioná **E** con la ventana enfocada para editar, o **Ctrl+V** para pegar el portapapeles como una guía nueva.
+
+---
+
+## Formato que entiende
+
+- **negrita**, *cursiva*, `código`
+- ==resaltado== para lo que no te podés olvidar
+- ~~tachado~~
+- Listas anidadas:
+  - como esta
+    - y esta
+
+1. Listas numeradas
+2. También
+
+---
+
+## Checklist antes de la reunión
+
+- [x] Cerrar mails y notificaciones
+- [x] Abrir la demo en una pestaña limpia
+- [ ] Repasar las 3 preguntas clave
+- [ ] Tener a mano los precios
+
+---
+
+## Ejemplo: apertura
+
+Hola a todos, gracias por el tiempo.
+
+Hoy quiero cubrir **tres cosas**:
+
+1. Dónde estamos con el proyecto
+2. Qué necesitamos decidir hoy
+3. Próximos pasos y responsables
+
+==Objetivo: salir con una decisión sobre el presupuesto.==
+
+---
+
+## Ejemplo: preguntas clave
+
+- ¿Cuál es el problema número uno que quieren resolver este trimestre?
+- ¿Quién más participa de la decisión?
+- ¿Qué pasaría si no hacen nada?
+- ¿Cómo miden el éxito?
+
+---
+
+## Ejemplo: manejo de objeciones
+
+**"Es caro"**
+→ Comparar contra el costo de no hacerlo: horas perdidas por semana × costo/hora.
+
+**"Ahora no es el momento"**
+→ ¿Qué tendría que pasar para que sí lo sea? Acordar fecha para retomar.
+
+**"Ya usamos otra herramienta"**
+→ ¿Qué es lo que más les gusta y qué cambiarían?
+
+---
+
+## Ejemplo: cierre
+
+- Resumir lo acordado en **una frase**
+- Confirmar responsables y fechas
+- Agendar la próxima reunión *antes* de cortar
+
+Gracias
+
+---
+
+## Texto largo
+
+Si una tarjeta no entra en la ventana, `Ctrl+Alt+→` primero baja una página y recién después pasa a la siguiente tarjeta. Abajo vas a ver "↓ more below" mientras quede texto.
+
+Esto sirve para usar Invisipal como teleprompter: podés pegar un discurso entero, ajustar el tamaño de letra y avanzar con el mismo atajo.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum. Donec sed odio dui. Maecenas faucibus mollis interdum.
+
+Vestibulum id ligula porta felis euismod semper. Nullam quis risus eget urna mollis ornare vel eu leo. Aenean lacinia bibendum nulla sed consectetur. Curabitur blandit tempus porttitor.
+
+Fin de la guía de ejemplo. Editala o creá una nueva desde la biblioteca (**L**).

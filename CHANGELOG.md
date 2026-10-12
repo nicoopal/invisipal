@@ -1,0 +1,39 @@
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [1.0.0] - 2026-10-12
+
+Initial release.
+
+### Added
+
+- Translucent, dark, borderless, always-on-top window that shows notes one card at a time, with a card counter, progress bar and a preview of the next card.
+- Exclusion from screen capture through `SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE)`, so the window is not shared when the entire screen is shared in Teams, Zoom, Google Meet, OBS or screenshots. Falls back to `WDA_MONITOR` (black box) on Windows 10 builds before 2004.
+- Header status badge: `private`, `blacked out` or `VISIBLE`.
+- The window starts fully transparent and becomes visible only after capture protection is applied; a watchdog re-applies it every second.
+- Fourteen global hotkeys registered from a dedicated message-loop thread: next / previous card, first / last, text size, opacity, show / hide, reload, quit, click-through, next guide and timer. All rebindable in `config.json`; an empty string disables a hotkey.
+- AltGr conflict handling: `Ctrl+Alt+<key>` hotkeys that would type a character on the active keyboard layout (for example `@` on Spanish or German layouts) are registered as `Ctrl+Alt+Shift+<key>` instead (`avoid_altgr_conflicts`).
+- Teleprompter paging: the "next" action scrolls through a long card before advancing.
+- Show / hide without stealing focus from the meeting app.
+- Click-through mode (`WS_EX_TRANSPARENT`).
+- Hidden from the taskbar and Alt+Tab by default (`show_in_taskbar`).
+- Single-instance behavior: launching again shows the running window.
+- Guides as plain `.md`, `.markdown` and `.txt` files with automatic reload when edited externally.
+- Card splitting modes: `auto`, `separator` (`---`), `heading`, `paragraph` and `none`.
+- Markdown subset: headings, bullet / numbered / nested lists, checklists, quotes, fenced code, bold, italic, inline code, `==highlight==` and `~~strikethrough~~`.
+- In-window editor, guide library and help view (no popups or extra windows, which would be capturable); paste the clipboard as a new guide with `Ctrl+V`.
+- Meeting timer (start / pause, double-click to reset).
+- Remembered window position, size, opacity, text size and card position per guide, stored in `config.json`.
+- Customizable theme colors.
+- Command-line flags `--data-dir`, `--guide`, `--no-protect` and `--version`.
+- Example guides in Spanish (`guides/guia.txt`) and English (`guides/demo-meeting.md`).
+- Pure Python standard library implementation (tkinter + ctypes) with no dependencies; buildable as a standalone `.exe` with `scripts/build.ps1`.
+
+[Unreleased]: https://github.com/nicoopal/invisipal/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/nicoopal/invisipal/releases/tag/v1.0.0
