@@ -52,26 +52,26 @@ Pure Python standard library (tkinter + ctypes). No dependencies, no installer, 
 
 ## Quick start
 
-### Option A: download (no Python needed)
+Invisipal runs with Python, which works on every Windows PC, including PCs where Smart App Control blocks unsigned programs.
 
 <p align="center">
-  <a href="https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal-Setup.exe"><img src="https://img.shields.io/badge/Download-Installer%20(recommended)-2ea44f?style=for-the-badge&logo=windows" alt="Download the installer"></a>
-  &nbsp;
-  <a href="https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal-portable.exe"><img src="https://img.shields.io/badge/Download-Portable%20.exe-555?style=for-the-badge&logo=windows" alt="Download the portable exe"></a>
+  <a href="https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal.zip"><img src="https://img.shields.io/badge/Download-Invisipal.zip-2ea44f?style=for-the-badge&logo=windows" alt="Download Invisipal.zip"></a>
 </p>
 
-- **Installer** (`Invisipal-Setup.exe`): installs for your user only (no admin rights), adds Invisipal to the Start menu, optionally to the desktop and to Windows startup, and shows up in *Settings → Apps* to uninstall. Run it again to upgrade.
-- **Portable** (`Invisipal-portable.exe`): a single file, nothing to install. Put it anywhere and double-click it. It takes a second or two longer to start.
+1. **Download [`Invisipal.zip`](https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal.zip)** and unzip it anywhere (right-click → *Extract All*).
+2. **Double-click `Install Invisipal.pyw`** in the unzipped folder.
+3. Click **Install**. Invisipal is now in your Start menu and on your desktop. Open it from there.
 
-Both keep your settings and guides in `Documents\Invisipal`, so upgrading or uninstalling never touches them. All files are also on the [Releases page](https://github.com/nicoopal/invisipal/releases).
+**Don't have Python?** Download it from **[python.org/downloads](https://www.python.org/downloads/)** (version 3.10 or newer), run the installer with the default options, and then do step 2 again.
 
-> **"Windows protected your PC"?** The executables aren't code-signed yet, so SmartScreen may warn about an unrecognized app. Click **More info → Run anyway**.
->
-> **"An Application Control policy has blocked this file" (code 4551)?** That's **Smart App Control** (Windows 11), which blocks every unsigned app it doesn't recognize, with no "run anyway" option. Until the releases are code-signed, run Invisipal [from source](#option-b-run-from-source) instead: Python itself is signed, so Smart App Control lets it run. See the [FAQ](docs/faq.md#windows-blocks-invisipalexe-an-application-control-policy-has-blocked-this-file) for details.
+The setup needs no admin rights. It copies the app to `%LOCALAPPDATA%\Invisipal\app` and creates shortcuts that run it with `pythonw.exe`; your guides and settings stay in `Documents\Invisipal`. To **update**, download the new zip and run `Install Invisipal.pyw` again. To **uninstall**, run it and click **Uninstall** (your guides are kept).
 
-### Option B: run from source
+The window opens in the top-right corner with an example guide. Press `?` (with the window focused) to see every shortcut, `Ctrl+Alt+H` to hide or show it, and `Ctrl+Alt+Q` to quit.
 
-Requires Windows 10 version 2004 or newer (or Windows 11) and Python 3.10+ with tkinter (included in the python.org installer).
+<details>
+<summary><b>Other ways to run it</b></summary>
+
+**Straight from the folder, without installing.** Double-click `invisipal.pyw` in the unzipped folder, or from a clone:
 
 ```powershell
 git clone https://github.com/nicoopal/invisipal.git
@@ -80,9 +80,9 @@ pythonw invisipal.pyw        # no console window
 # or:  python -m invisipal
 ```
 
-You can also double-click `invisipal.pyw`.
+**Standalone `.exe` (no Python).** Each release also has an installer ([`Invisipal-Setup.exe`](https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal-Setup.exe)) and a single-file [`Invisipal-portable.exe`](https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal-portable.exe). They aren't code-signed yet, so Windows SmartScreen warns about them (*More info → Run anyway*), and **Smart App Control blocks them** with *"An Application Control policy has blocked this file"*. If that happens, use the Python version above. See the [FAQ](docs/faq.md#windows-blocks-invisipalexe-an-application-control-policy-has-blocked-this-file).
 
-The window opens in the top-right corner showing an example guide. Press `?` (with the window focused) to see every shortcut and the status of each hotkey, `Ctrl+Alt+H` to hide or show it, and `Ctrl+Alt+Q` to quit.
+</details>
 
 ## Verify it's invisible
 

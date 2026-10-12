@@ -8,29 +8,26 @@ Invisipal es una ventana oscura, translúcida, siempre visible y sin bordes que 
 
 Solo usa la biblioteca estándar de Python (tkinter + ctypes): cero dependencias.
 
-## Requisitos
+## Cómo instalarlo
 
-- Windows 10 versión 2004 o superior, o Windows 11. En builds anteriores de Windows 10 la ventana se ve como un rectángulo negro (el indicador dice `● blacked out`).
-- Python 3.10+ (con tkinter, incluido en el instalador de python.org), o bien el ejecutable, que no necesita Python:
-  - **[Instalador](https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal-Setup.exe)** (recomendado): se instala solo para el usuario, sin permisos de administrador. Agrega Invisipal al menú Inicio y, si se quiere, al escritorio y al inicio de Windows. Se desinstala desde *Configuración → Aplicaciones*.
-  - **[Portable](https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal-portable.exe)**: un único `.exe`, sin instalar nada.
+Invisipal funciona con Python, que corre en cualquier PC con Windows, incluso en las que Smart App Control bloquea los programas sin firma.
 
-  Si aparece "Windows protegió su PC" (los ejecutables todavía no están firmados): **Más información → Ejecutar de todas formas**.
+1. **Bajá [`Invisipal.zip`](https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal.zip)** y descomprimilo donde quieras (clic derecho → *Extraer todo*).
+2. **Hacé doble clic en `Install Invisipal.pyw`**, dentro de la carpeta descomprimida.
+3. Tocá **Instalar**. Invisipal queda en el menú Inicio y en el escritorio; abrilo desde ahí.
 
-  Si aparece **"An Application Control policy has blocked this file" (código 4551)**, es **Smart App Control** de Windows 11, que bloquea toda app sin firma digital y no tiene botón para ejecutarla igual. Mientras los ejecutables no estén firmados, usar la versión con Python (`invisipal.pyw`): Python está firmado y la app es idéntica. Detalles en el [FAQ](docs/faq.md#windows-blocks-invisipalexe-an-application-control-policy-has-blocked-this-file).
+**¿No tenés Python?** Bajalo de **[python.org/downloads](https://www.python.org/downloads/)** (versión 3.10 o más nueva), instalalo con las opciones que vienen marcadas y volvé al paso 2.
 
-## Cómo ejecutarlo
+No hace falta ser administrador. El instalador copia la app a `%LOCALAPPDATA%\Invisipal\app` y crea accesos directos que la abren con `pythonw.exe`; tus guías y tu configuración quedan en `Documentos\Invisipal`. Para **actualizar**, bajá el zip nuevo y volvé a ejecutar `Install Invisipal.pyw`. Para **desinstalar**, ejecutalo y tocá **Desinstalar** (tus guías no se borran).
 
-```powershell
-git clone https://github.com/nicoopal/invisipal.git
-cd invisipal
-pythonw invisipal.pyw        # sin ventana de consola
-# o bien:  python -m invisipal
-```
+Requiere Windows 10 versión 2004 o superior, o Windows 11. En versiones anteriores de Windows 10 la ventana se ve como un rectángulo negro al compartir (el indicador dice `● blacked out`).
 
-También sirve hacer doble clic en `invisipal.pyw`, o abrir Invisipal desde el menú Inicio si se usó el instalador.
+**Otras formas de usarlo:**
 
-Si ya está abierto, volver a lanzarlo solo muestra la ventana existente. Opciones de línea de comandos: `--data-dir CARPETA`, `--guide ARCHIVO`, `--no-protect` (deja la ventana visible para los demás; útil para capturas y demos) y `--version`.
+- **Sin instalar**: doble clic en `invisipal.pyw` dentro de la carpeta descomprimida, o desde un clon del repo con `pythonw invisipal.pyw`.
+- **`.exe` sin Python**: cada release también trae un [instalador](https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal-Setup.exe) y un [`.exe` portable](https://github.com/nicoopal/invisipal/releases/latest/download/Invisipal-portable.exe). Todavía no están firmados: Windows SmartScreen avisa (*Más información → Ejecutar de todas formas*) y **Smart App Control los bloquea** con *"An Application Control policy has blocked this file"*. En ese caso, usá la versión con Python.
+
+Si Invisipal ya está abierto, volver a abrirlo solo muestra la ventana existente. Opciones de línea de comandos: `--data-dir CARPETA`, `--guide ARCHIVO`, `--no-protect` (deja la ventana visible para los demás; útil para capturas y demos) y `--version`.
 
 ## Atajos
 

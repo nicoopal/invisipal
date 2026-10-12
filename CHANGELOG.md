@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-12
+
+### Added
+
+- **`Invisipal.zip`**, the recommended download: the Python version plus `Install Invisipal.pyw`, a small setup window (English/Spanish) that copies the app to `%LOCALAPPDATA%\Invisipal\app` and creates Start menu, desktop and optional startup shortcuts that run it with `pythonw.exe`. It updates and uninstalls too. Because Python is signed, it works on PCs where Smart App Control blocks the unsigned executables.
+
+### Fixed
+
+- Card index: titles were hard to click and the mouse wheel didn't scroll the list. The index used the transparent key color as its background, so clicks and the wheel fell through to the window behind; it now has its own sidebar background, taller rows and a full-width hover highlight.
+- The "hotkey in use by another app" message no longer lists every hotkey on one line.
+
 ### Documentation
 
 - Smart App Control (Windows 11) blocks the unsigned executables with "An Application Control policy has blocked this file" (code 4551). Documented the cause and the workarounds in the README and FAQ.
@@ -62,6 +73,7 @@ Initial release.
 - Example guides in Spanish (`invisipal/examples/guia.txt`) and English (`invisipal/examples/demo-meeting.md`).
 - Pure Python standard library implementation (tkinter + ctypes) with no dependencies; buildable as a standalone `.exe` with `scripts/build.ps1`.
 
-[Unreleased]: https://github.com/nicoopal/invisipal/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/nicoopal/invisipal/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/nicoopal/invisipal/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/nicoopal/invisipal/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/nicoopal/invisipal/releases/tag/v1.0.0

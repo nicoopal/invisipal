@@ -30,6 +30,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
+            dist/Invisipal.zip
             dist/Invisipal-Setup.exe
             dist/Invisipal-portable.exe
             dist/invisipal-cards.skill

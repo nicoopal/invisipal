@@ -7,6 +7,7 @@
     dist\Invisipal-Setup.exe      per-user installer (Inno Setup), the recommended download
     dist\Invisipal-portable.exe   single-file exe, no install needed
     dist\invisipal-cards.skill    the Claude skill (a zip of skills\invisipal-cards)
+    dist\Invisipal.zip            the Python version (recommended download), see scripts\make_python_zip.py
     dist\Invisipal\               one-folder build the installer packs (intermediate)
 
   The installer step needs Inno Setup 6 (ISCC.exe). If it isn't installed the
@@ -83,7 +84,10 @@ if (Test-Path $cache) { Remove-Item -Recurse -Force $cache }
 Invoke-Native python @('-c', "import shutil; shutil.make_archive('dist/invisipal-cards', 'zip', 'skills', 'invisipal-cards')")
 Move-Item -Force (Join-Path $root 'dist\invisipal-cards.zip') (Join-Path $root 'dist\invisipal-cards.skill')
 
-# 4) Installer.
+# 4) Python version: unzip and double-click "Install Invisipal.pyw".
+Invoke-Native python @((Join-Path $root 'scripts\make_python_zip.py'))
+
+# 5) Installer.
 $setup = Join-Path $root 'dist\Invisipal-Setup.exe'
 if (-not $SkipInstaller) {
     $iscc = (Get-Command 'ISCC.exe' -ErrorAction SilentlyContinue).Source
@@ -107,7 +111,7 @@ if (-not $SkipInstaller) {
 if (-not $KeepBuildDir -and (Test-Path 'build')) { Remove-Item -Recurse -Force 'build' }
 
 Write-Host ''
-foreach ($artifact in @($setup, $portable, (Join-Path $root 'dist\invisipal-cards.skill'))) {
+foreach ($artifact in @((Join-Path $root 'dist\Invisipal.zip'), $setup, $portable, (Join-Path $root 'dist\invisipal-cards.skill'))) {
     if (Test-Path $artifact) {
         $size = [math]::Round((Get-Item $artifact).Length / 1MB, 1)
         Write-Host ("{0,-28} {1,6} MB" -f (Split-Path -Leaf $artifact), $size)

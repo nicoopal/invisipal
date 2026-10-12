@@ -285,12 +285,15 @@ class InvisipalApp:
         # Card index on the left, the card itself on the right; the sash resizes the index.
         self.reader_pane = tk.PanedWindow(self.body, orient="horizontal", bg=t["border"], bd=0,
                                           sashwidth=3, sashrelief="flat", showhandle=False, opaqueresize=True)
-        self.index_list = self._text_widget(self.reader_pane, bg=self.key, fg=t["muted"], font=self.index_font,
-                                       wrap="none", padx=12, pady=14, spacing1=3, spacing3=3, cursor="hand2")
+        # A real (non-key) background: color-keyed pixels let clicks and the wheel fall
+        # through to the window behind, which made the titles hard to click and scroll.
+        self.index_list = self._text_widget(self.reader_pane, bg=t["surface"], fg=t["muted"], font=self.index_font,
+                                            wrap="none", padx=6, pady=10, spacing1=5, spacing3=5, cursor="hand2")
         ix = self.index_list
         ix.tag_configure("num", foreground=t["muted"])
+        ix.tag_configure("row_current", background=t["code_bg"])
         ix.tag_configure("current", foreground=t["accent"], font=self.index_bold)
-        ix.tag_configure("hover", foreground=t["text"])
+        ix.tag_configure("hover", background=t["border"], foreground=t["text"])
         ix.bind("<Button-1>", self._on_index_click)
         ix.bind("<Motion>", self._on_index_motion)
         ix.bind("<Leave>", lambda e: self._set_index_hover(None))
@@ -425,7 +428,9 @@ class InvisipalApp:
         if self.cfg.load_error:
             self.toast(self.cfg.load_error, "danger", 6000)
         elif self.hotkey_thread and self.hotkey_thread.failed:
-            self.toast(f"Hotkey in use by another app: {', '.join(self.hotkey_thread.failed)}", "warn", 6000)
+            failed = self.hotkey_thread.failed
+            what = failed[0] if len(failed) == 1 else f"{len(failed)} hotkeys"
+            self.toast(f"{what} in use by another app — press ? for details", "warn", 6000)
         elif self.hotkey_warnings:
             self.toast(self.hotkey_warnings[0], "warn", 8000)
 
@@ -766,8 +771,10 @@ class InvisipalApp:
         digits = len(str(len(self.cards)))
         for i, card in enumerate(self.cards):
             current = ("current",) if i == self.index else ()
-            ix.insert("end", f"{i + 1:>{digits}}  ", ("num",) + current)
+            ix.insert("end", f" {i + 1:>{digits}}  ", ("num",) + current)
             ix.insert("end", (card.title or "…") + "\n", current)
+            if current:  # highlight the whole row, newline included, so it spans the width
+                ix.tag_add("row_current", f"{i + 1}.0", f"{i + 2}.0")
         ix.configure(state="disabled")
         if self.cards:
             ix.see(f"{self.index + 1}.0")
@@ -791,7 +798,7 @@ class InvisipalApp:
             return
         self.index_list.tag_remove("hover", "1.0", "end")
         if line is not None:
-            self.index_list.tag_add("hover", f"{line + 1}.0", f"{line + 1}.end")
+            self.index_list.tag_add("hover", f"{line + 1}.0", f"{line + 2}.0")
         self._index_hover = line
 
     def _on_index_ctrl_wheel(self, event) -> str:
