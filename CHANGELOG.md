@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-12
+
 ### Added (window)
 
 - Separate **background** and **text** opacity: the window is now two capture-excluded layers (a translucent backdrop plus a color-keyed text layer). Inline sliders (`◐` / `A`), hotkeys (`Ctrl+Alt+PageUp/PageDown`, `Ctrl+Alt+Shift+Right/Left`) and `Alt`/`Alt+Shift` + wheel. The old `opacity` setting and `opacity_up/down` hotkeys are migrated.
@@ -56,5 +58,6 @@ Initial release.
 - Example guides in Spanish (`invisipal/examples/guia.txt`) and English (`invisipal/examples/demo-meeting.md`).
 - Pure Python standard library implementation (tkinter + ctypes) with no dependencies; buildable as a standalone `.exe` with `scripts/build.ps1`.
 
-[Unreleased]: https://github.com/nicoopal/invisipal/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/nicoopal/invisipal/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/nicoopal/invisipal/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/nicoopal/invisipal/releases/tag/v1.0.0
