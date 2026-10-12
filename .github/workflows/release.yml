@@ -26,6 +26,18 @@ jobs:
       - name: Build
         shell: powershell
         run: ./scripts/build.ps1
+      - name: Build Store package (MSIX)
+        shell: powershell
+        run: |
+          $identity = Get-Content installer/msix/store-identity.json -Raw | ConvertFrom-Json
+          if ($identity.identity_name -eq '__SET_ME__') { Write-Host 'Store identity not set yet: skipping the MSIX' }
+          else { ./scripts/build-msix.ps1 }
+      - name: Upload Store package
+        uses: actions/upload-artifact@v4
+        with:
+          name: invisipal-msix
+          path: dist/*.msix
+          if-no-files-found: ignore
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
