@@ -34,6 +34,8 @@ Paste this so the reviewer knows what to expect:
 > Invisipal shows the user's own notes in a small always-on-top window that is intentionally excluded from screen capture using the documented SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE) API. This is the core feature: presenters can read their notes while sharing their entire screen in Teams, Zoom or Meet without the audience seeing them. Because of this, the window does not appear in screenshots or screen recordings taken by the reviewer; that is expected behavior, not a rendering bug. The green "● private" badge in the window header confirms the protection is active.
 >
 > How to test: launch Invisipal; an example guide opens. Press Ctrl+Alt+Right / Ctrl+Alt+Left to move between cards (global shortcuts, they work without focus), Ctrl+Alt+H to hide/show, and press "?" in the window for every shortcut. On Spanish/Latin American/German keyboards the quit shortcut becomes Ctrl+Alt+Shift+Q so it doesn't block typing "@". No account, network or sample data needed. The app stores its files in Documents\Invisipal.
+>
+> About the App Certification Kit: the "Blocked executables" check flags text such as "cmd" inside the bundled Python and Tcl/Tk runtime libraries (python313.dll, tcl86t.dll, tk86t.dll and their .tcl scripts). Invisipal never launches cmd.exe, reg.exe or any other blocked executable; the only program it opens is File Explorer, when the user clicks "Open folder" in the guide library.
 
 ## Store listing: English (en-us)
 

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Microsoft Store packaging: MSIX manifest and assets (`installer/msix/`), `scripts/build-msix.ps1`, an `MSIX` workflow that installs and launches the package and runs the App Certification Kit, a privacy policy (`PRIVACY.md`) and the Store listing texts (`docs/store-listing.md`).
+
 ## [1.2.0] - 2026-10-12
 
 ### Added
